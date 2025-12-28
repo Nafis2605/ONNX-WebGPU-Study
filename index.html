@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ONNX Runtime Web Benchmark</title>
+  </head>
+  <body>
+    <h2>ONNX Runtime Web Benchmark</h2>
+
+    <div>
+      <label for="backendSelect">Backend:</label>
+      <select id="backendSelect">
+        <option value="wasm">WASM (CPU)</option>
+        <option value="webgl">WebGL</option>
+        <option value="webgpu">WebGPU</option>
+        <option value="webnn">WebNN</option>
+      </select>
+    </div>
+
+    <div style="margin-top: 8px;">
+      <label for="modelsSelect">Models (multi-select):</label><br />
+      <select id="modelsSelect" multiple size="10" style="min-width: 420px;"></select>
+    </div>
+
+    <div style="margin-top: 8px;">
+      <label for="warmupRuns">Warm-up runs:</label>
+      <input id="warmupRuns" type="number" min="0" value="10" />
+
+      <label for="measureRuns" style="margin-left: 10px;">Measure runs:</label>
+      <input id="measureRuns" type="number" min="1" value="100" />
+    </div>
+
+    <div style="margin-top: 10px;">
+      <button id="runBtn">Run Benchmark</button>
+      <button id="stopBtn" disabled>Stop</button>
+    </div>
+
+    <hr />
+
+    <div>
+      <h3>Status</h3>
+      <pre id="status"></pre>
+    </div>
+
+    <div>
+      <h3>Results</h3>
+      <table border="1" cellpadding="6" cellspacing="0">
+        <thead>
+          <tr>
+            <th>Model</th>
+            <th>Backend</th>
+            <th>Warm-up runs</th>
+            <th>Avg warm-up (ms)</th>
+            <th>Measure runs</th>
+            <th>Avg inference (ms)</th>
+            <th>Notes</th>
+          </tr>
+        </thead>
+        <tbody id="resultsBody"></tbody>
+      </table>
+    </div>
+
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>
