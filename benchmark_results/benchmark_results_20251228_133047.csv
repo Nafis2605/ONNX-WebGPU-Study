@@ -1,4 +1,0 @@
-timestamp,model,backend,warmup_runs,measure_runs,avg_warmup_ms,avg_inference_ms,status,notes,session_create_ms
-2025-12-28T13:29:46.494344,mobilenetv2-1.0-224,webgl,1,100,55.600,44.328,SUCCESS,session_create_ms=230.9,N/A
-2025-12-28T13:30:28.257431,resnet50-v2,webgl,1,100,326.300,313.531,SUCCESS,session_create_ms=348.9,N/A
-2025-12-28T13:30:43.804280,alexnet_Opset16,webgl,1,100,68.500,55.414,SUCCESS,session_create_ms=708.0,N/A

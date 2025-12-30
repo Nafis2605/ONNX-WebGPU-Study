@@ -3,62 +3,380 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>ONNX Runtime Web Benchmark</title>
+    <title>ONNX Runtime Web Benchmark - Complete Metrics</title>
+    <style>
+      * {
+        box-sizing: border-box;
+      }
+      
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+        margin: 0;
+        padding: 20px;
+        background: #f5f5f5;
+      }
+      
+      .container {
+        max-width: 100%;
+        margin: 0 auto;
+        background: white;
+        padding: 30px;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      }
+      
+      h2 {
+        color: #333;
+        border-bottom: 3px solid #4CAF50;
+        padding-bottom: 10px;
+        margin-top: 0;
+      }
+      
+      .controls {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 15px;
+        margin: 20px 0;
+      }
+      
+      .control-group {
+        display: flex;
+        flex-direction: column;
+      }
+      
+      label {
+        font-weight: 600;
+        margin-bottom: 5px;
+        color: #555;
+        font-size: 14px;
+      }
+      
+      select, input {
+        padding: 8px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        font-size: 14px;
+      }
+      
+      select:focus, input:focus {
+        outline: none;
+        border-color: #4CAF50;
+        box-shadow: 0 0 0 2px rgba(76, 175, 80, 0.1);
+      }
+      
+      #modelsSelect {
+        min-height: 180px;
+      }
+      
+      .button-group {
+        display: flex;
+        gap: 10px;
+        margin: 20px 0;
+      }
+      
+      button {
+        padding: 12px 24px;
+        font-size: 14px;
+        font-weight: 600;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        transition: all 0.2s;
+      }
+      
+      #runBtn {
+        background: #4CAF50;
+        color: white;
+      }
+      
+      #runBtn:hover:not(:disabled) {
+        background: #45a049;
+        transform: translateY(-1px);
+        box-shadow: 0 2px 8px rgba(76, 175, 80, 0.3);
+      }
+      
+      #runBtn:disabled {
+        background: #ccc;
+        cursor: not-allowed;
+        transform: none;
+      }
+      
+      #stopBtn {
+        background: #f44336;
+        color: white;
+      }
+      
+      #stopBtn:hover:not(:disabled) {
+        background: #da190b;
+      }
+      
+      #stopBtn:disabled {
+        background: #ccc;
+        cursor: not-allowed;
+      }
+      
+      hr {
+        border: none;
+        border-top: 1px solid #ddd;
+        margin: 30px 0;
+      }
+      
+      h3 {
+        color: #333;
+        margin-top: 30px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+      
+      .section-icon {
+        font-size: 24px;
+      }
+      
+      #status {
+        background: #f9f9f9;
+        padding: 15px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        font-family: 'Courier New', monospace;
+        font-size: 12px;
+        max-height: 400px;
+        overflow-y: auto;
+        white-space: pre-wrap;
+        word-wrap: break-word;
+        line-height: 1.4;
+      }
+      
+      .table-container {
+        overflow-x: auto;
+        margin-top: 20px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        max-width: 100%;
+      }
+      
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 12px;
+        min-width: 1600px;
+      }
+      
+      thead {
+        position: sticky;
+        top: 0;
+        z-index: 10;
+      }
+      
+      th {
+        background: #4CAF50;
+        color: white;
+        padding: 12px 8px;
+        text-align: left;
+        font-weight: 600;
+        white-space: nowrap;
+        border-right: 1px solid rgba(255,255,255,0.2);
+      }
+      
+      th:last-child {
+        border-right: none;
+      }
+      
+      td {
+        padding: 10px 8px;
+        border-bottom: 1px solid #eee;
+        border-right: 1px solid #eee;
+        white-space: nowrap;
+      }
+      
+      td:last-child {
+        border-right: none;
+        white-space: normal;
+        word-wrap: break-word;
+        max-width: 200px;
+      }
+      
+      tbody tr:hover {
+        background: #f5f5f5;
+      }
+      
+      tbody tr:nth-child(even) {
+        background: #fafafa;
+      }
+      
+      tbody tr:nth-child(even):hover {
+        background: #f0f0f0;
+      }
+      
+      .metric-highlight {
+        font-weight: 600;
+        color: #4CAF50;
+      }
+      
+      .info-box {
+        background: #e8f5e9;
+        border-left: 4px solid #4CAF50;
+        padding: 15px;
+        margin: 15px 0;
+        border-radius: 4px;
+        font-size: 13px;
+        line-height: 1.6;
+      }
+      
+      .info-box strong {
+        color: #2e7d32;
+      }
+      
+      .metrics-legend {
+        background: #fff3cd;
+        border-left: 4px solid #ffc107;
+        padding: 15px;
+        margin: 15px 0;
+        border-radius: 4px;
+        font-size: 12px;
+        line-height: 1.8;
+      }
+      
+      .metrics-legend h4 {
+        margin-top: 0;
+        color: #856404;
+      }
+      
+      .metric-group {
+        margin-bottom: 10px;
+      }
+      
+      .metric-name {
+        font-weight: 600;
+        color: #856404;
+      }
+      
+      @media (max-width: 768px) {
+        .container {
+          padding: 15px;
+        }
+        
+        .controls {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
   </head>
   <body>
-    <h2>ONNX Runtime Web Benchmark</h2>
+    <div class="container">
+      <h2>🚀 ONNX Runtime Web Benchmark - Complete Performance Metrics</h2>
 
-    <div>
-      <label for="backendSelect">Backend:</label>
-      <select id="backendSelect">
-        <option value="wasm">WASM (CPU)</option>
-        <option value="webgl">WebGL</option>
-        <option value="webgpu">WebGPU</option>
-        <option value="webnn">WebNN</option>
-      </select>
-    </div>
+      <div class="info-box">
+        <strong>📊 10 Detailed Metrics:</strong> This benchmark captures comprehensive performance data including kernel execution, memory usage, synchronization overhead, and end-to-end latency for deep analysis of model performance.
+      </div>
 
-    <div style="margin-top: 8px;">
-      <label for="modelsSelect">Models (multi-select):</label><br />
-      <select id="modelsSelect" multiple size="10" style="min-width: 420px;"></select>
-    </div>
+      <div class="controls">
+        <div class="control-group">
+          <label for="backendSelect">Backend:</label>
+          <select id="backendSelect">
+            <option value="wasm">WASM (CPU)</option>
+            <option value="webgl">WebGL</option>
+            <option value="webgpu">WebGPU</option>
+            <option value="webnn">WebNN</option>
+          </select>
+        </div>
 
-    <div style="margin-top: 8px;">
-      <label for="warmupRuns">Warm-up runs:</label>
-      <input id="warmupRuns" type="number" min="0" value="10" />
+        <div class="control-group">
+          <label for="warmupRuns">Warm-up runs:</label>
+          <input id="warmupRuns" type="number" min="0" value="1" />
+        </div>
 
-      <label for="measureRuns" style="margin-left: 10px;">Measure runs:</label>
-      <input id="measureRuns" type="number" min="1" value="100" />
-    </div>
+        <div class="control-group">
+          <label for="measureRuns">Measure runs:</label>
+          <input id="measureRuns" type="number" min="1" value="100" />
+        </div>
+      </div>
 
-    <div style="margin-top: 10px;">
-      <button id="runBtn">Run Benchmark</button>
-      <button id="stopBtn" disabled>Stop</button>
-    </div>
+      <div class="control-group">
+        <label for="modelsSelect">Models (multi-select with Ctrl/Cmd):</label>
+        <select id="modelsSelect" multiple></select>
+        <p style="font-size: 12px; color: #666; font-style: italic; margin-top: 5px;">
+          Hold Ctrl (Windows/Linux) or Cmd (Mac) to select multiple models
+        </p>
+      </div>
 
-    <hr />
+      <div class="button-group">
+        <button id="runBtn">▶ Run Benchmark</button>
+        <button id="stopBtn" disabled>⬛ Stop</button>
+      </div>
 
-    <div>
-      <h3>Status</h3>
-      <pre id="status"></pre>
-    </div>
+      <hr />
 
-    <div>
-      <h3>Results</h3>
-      <table border="1" cellpadding="6" cellspacing="0">
-        <thead>
-          <tr>
-            <th>Model</th>
-            <th>Backend</th>
-            <th>Warm-up runs</th>
-            <th>Avg warm-up (ms)</th>
-            <th>Measure runs</th>
-            <th>Avg inference (ms)</th>
-            <th>Notes</th>
-          </tr>
-        </thead>
-        <tbody id="resultsBody"></tbody>
-      </table>
+      <div>
+        <h3><span class="section-icon">📊</span> Status</h3>
+        <pre id="status"></pre>
+      </div>
+
+      <div>
+        <h3><span class="section-icon">📈</span> Results</h3>
+        
+        <div class="metrics-legend">
+          <h4>📋 Metrics Guide (10 metrics total)</h4>
+          
+          <div class="metric-group">
+            <span class="metric-name">1. Kernel Execution Time:</span> Pure computation time (ms)
+          </div>
+          <div class="metric-group">
+            <span class="metric-name">2. Kernel Launch Latency:</span> Overhead to start execution (ms)
+          </div>
+          <div class="metric-group">
+            <span class="metric-name">3. Operator Fusion Rate:</span> Optimization effectiveness (%)
+          </div>
+          <div class="metric-group">
+            <span class="metric-name">4. Per-Operator Latency:</span> Avg time per operator (ms)
+          </div>
+          <div class="metric-group">
+            <span class="metric-name">5. Kernel Compilation Time:</span> JIT compilation cost (ms)
+          </div>
+          <div class="metric-group">
+            <span class="metric-name">6. Effective Memory Bandwidth:</span> Data transfer rate (GB/s)
+          </div>
+          <div class="metric-group">
+            <span class="metric-name">7. Synchronization Overhead:</span> Time waiting for async ops (ms)
+          </div>
+          <div class="metric-group">
+            <span class="metric-name">8. Peak Memory Usage:</span> Maximum memory consumed (MB)
+          </div>
+          <div class="metric-group">
+            <span class="metric-name">9. Time to First Output:</span> Latency until first result (ms)
+          </div>
+          <div class="metric-group">
+            <span class="metric-name">10. End-to-End Latency:</span> Total wall-clock time (ms)
+          </div>
+        </div>
+        
+        <div class="table-container">
+          <table>
+            <thead>
+              <tr>
+                <th>Model</th>
+                <th>Backend</th>
+                <th>Warmup<br>Runs</th>
+                <th>Avg Warmup<br>(ms)</th>
+                <th>Measure<br>Runs</th>
+                <th>Avg Inference<br>(ms)</th>
+                <th>1. Kernel Exec<br>(ms)</th>
+                <th>2. Launch Lat<br>(ms)</th>
+                <th>3. Fusion<br>Rate (%)</th>
+                <th>4. Per-Op Lat<br>(ms)</th>
+                <th>5. Compilation<br>(ms)</th>
+                <th>6. Mem BW<br>(GB/s)</th>
+                <th>7. Sync OH<br>(ms)</th>
+                <th>8. Peak Mem<br>(MB)</th>
+                <th>9. Time to 1st<br>(ms)</th>
+                <th>10. E2E Lat<br>(ms)</th>
+                <th>Notes</th>
+              </tr>
+            </thead>
+            <tbody id="resultsBody"></tbody>
+          </table>
+        </div>
+      </div>
     </div>
 
     <script type="module" src="/src/main.js"></script>

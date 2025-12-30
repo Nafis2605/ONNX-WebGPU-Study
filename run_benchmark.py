@@ -1,20 +1,40 @@
+"""
+ONNX Runtime Web Benchmark Automation with Detailed Metrics
+
+Updated to capture:
+- Kernel execution time
+- Kernel launch latency
+- Operator fusion rate
+- Per-operator latency
+- Kernel compilation time
+
+Requirements:
+    pip install playwright pandas openpyxl
+    playwright install chromium
+
+Usage:
+    python run_benchmark_metrics.py --url http://localhost:5173 --models ./public/models/models.json
+"""
+
 import asyncio
 import json
 import re
 import time
+import argparse
 from pathlib import Path
 from datetime import datetime
-from playwright.async_api import async_playwright
+from playwright.async_api import async_playwright, TimeoutError as PlaywrightTimeout
 import pandas as pd
 
 
 class BenchmarkRunner:
-    def __init__(self, url, models_config_path, output_dir="benchmark_results"):
+    def __init__(self, url, models_config_path, output_dir="benchmark_results", headless=False):
         self.url = url
         self.models_config_path = models_config_path
         self.output_dir = Path(output_dir)
         self.output_dir.mkdir(exist_ok=True)
         self.results = []
+        self.headless = headless
         
     async def load_models_list(self):
         """Load the list of models from models.json"""
@@ -36,7 +56,12 @@ class BenchmarkRunner:
         
         # Enable console logging
         logs = []
-        page.on("console", lambda msg: logs.append(msg.text()))
+        def handle_console(msg):
+            try:
+                logs.append(msg.text)
+            except:
+                pass
+        page.on("console", handle_console)
         
         try:
             # Navigate to the benchmark page
@@ -44,7 +69,8 @@ class BenchmarkRunner:
             await page.goto(self.url, wait_until="networkidle", timeout=60000)
             
             # Wait for the page to be ready
-            await page.wait_for_selector("#runBtn", state="visible", timeout=30000)
+            print("Waiting for page elements...")
+            await page.locator("#runBtn").wait_for(timeout=30000)
             print("Page loaded successfully")
             
             # Select backend
@@ -59,92 +85,160 @@ class BenchmarkRunner:
             # Wait a bit for the models to load
             await asyncio.sleep(2)
             
-            # Select only the target model
-            # First, get all options
-            options = await page.locator("#modelsSelect option").all()
-            
-            # Find and select only our target model
-            found = False
-            for option in options:
-                value = await option.get_attribute("value")
-                if value == model_name:
-                    # Use JavaScript to select this specific option
-                    await page.evaluate(f"""
-                        const select = document.getElementById('modelsSelect');
-                        for (let opt of select.options) {{
-                            opt.selected = (opt.value === '{model_name}');
+            # Select only the target model using JavaScript
+            print(f"Selecting model: {model_name}")
+            found = await page.evaluate(f"""
+                () => {{
+                    const select = document.getElementById('modelsSelect');
+                    if (!select) return false;
+                    
+                    let found = false;
+                    for (let opt of select.options) {{
+                        if (opt.value === '{model_name}') {{
+                            opt.selected = true;
+                            found = true;
+                        }} else {{
+                            opt.selected = false;
                         }}
-                    """)
-                    found = True
-                    print(f"Selected model: {model_name}")
-                    break
+                    }}
+                    return found;
+                }}
+            """)
             
             if not found:
                 raise Exception(f"Model '{model_name}' not found in the models list")
             
+            print(f"Model selected: {model_name}")
+            
             # Click Run button
             print("Starting benchmark...")
-            await page.click("#runBtn")
+            run_btn = page.locator("#runBtn")
+            await run_btn.click()
             
-            # Wait for benchmark to complete (check if Run button is re-enabled)
-            # This might take a long time depending on the model
-            timeout_ms = 600000  # 10 minutes timeout
+            # Wait for benchmark to complete
+            timeout_seconds = 600  # 10 minutes timeout
             start_time = time.time()
+            last_log_time = start_time
+            
+            print("Waiting for benchmark to complete...")
             
             while True:
                 # Check if run button is enabled (benchmark complete)
-                is_disabled = await page.locator("#runBtn").is_disabled()
+                try:
+                    is_disabled = await run_btn.is_disabled()
+                except:
+                    is_disabled = True
                 
                 if not is_disabled:
                     print("Benchmark completed!")
                     break
                 
                 # Check timeout
-                if (time.time() - start_time) * 1000 > timeout_ms:
-                    raise Exception(f"Benchmark timed out after {timeout_ms/1000} seconds")
+                elapsed = time.time() - start_time
+                if elapsed > timeout_seconds:
+                    raise Exception(f"Benchmark timed out after {timeout_seconds} seconds")
                 
                 # Log progress every 5 seconds
-                if int(time.time() - start_time) % 5 == 0:
-                    status_text = await page.locator("#status").text_content()
-                    last_lines = status_text.strip().split('\n')[-3:]
-                    print(f"Progress: {' | '.join(last_lines)}")
+                current_time = time.time()
+                if current_time - last_log_time >= 5:
+                    try:
+                        status_text = await page.locator("#status").inner_text()
+                        last_lines = status_text.strip().split('\n')[-3:]
+                        print(f"Progress: {' | '.join([l.strip() for l in last_lines if l.strip()])}")
+                    except:
+                        print(f"Benchmark running... ({int(elapsed)}s elapsed)")
+                    last_log_time = current_time
                 
                 await asyncio.sleep(1)
             
             # Extract results from the page
-            await asyncio.sleep(2)  # Wait a bit for results to be written
+            await asyncio.sleep(2)
             
-            status_text = await page.locator("#status").text_content()
+            print("Extracting results...")
+            status_text = await page.locator("#status").inner_text()
             
             # Parse results from status text
             result = self.parse_results(model_name, backend, status_text)
             
             # Also try to get from table if available
-            table_rows = await page.locator("#resultsBody tr").all()
-            if table_rows:
-                for row in table_rows:
-                    cells = await row.locator("td").all()
-                    if cells and len(cells) >= 7:
-                        table_model = await cells[0].text_content()
-                        if table_model == model_name:
-                            result['warmup_runs'] = await cells[2].text_content()
-                            result['avg_warmup_ms'] = await cells[3].text_content()
-                            result['measure_runs'] = await cells[4].text_content()
-                            result['avg_inference_ms'] = await cells[5].text_content()
-                            result['notes'] = await cells[6].text_content()
-                            break
+            try:
+                table_rows = await page.locator("#resultsBody tr").all()
+                if table_rows:
+                    for row in table_rows:
+                        cells = await row.locator("td").all()
+                        if cells and len(cells) >= 17:  # Updated for all columns
+                            table_model = await cells[0].inner_text()
+                            if table_model == model_name:
+                                result['warmup_runs'] = await cells[2].inner_text()
+                                result['avg_warmup_ms'] = await cells[3].inner_text()
+                                result['measure_runs'] = await cells[4].inner_text()
+                                result['avg_inference_ms'] = await cells[5].inner_text()
+                                result['kernel_execution_time_ms'] = await cells[6].inner_text()
+                                result['kernel_launch_latency_ms'] = await cells[7].inner_text()
+                                result['operator_fusion_rate'] = await cells[8].inner_text()
+                                result['per_operator_latency_ms'] = await cells[9].inner_text()
+                                result['kernel_compilation_time_ms'] = await cells[10].inner_text()
+                                result['effective_memory_bandwidth_gbps'] = await cells[11].inner_text()
+                                result['synchronization_overhead_ms'] = await cells[12].inner_text()
+                                result['peak_memory_usage_mb'] = await cells[13].inner_text()
+                                result['time_to_first_output_ms'] = await cells[14].inner_text()
+                                result['end_to_end_latency_ms'] = await cells[15].inner_text()
+                                result['notes'] = await cells[16].inner_text()
+                                break
+            except Exception as e:
+                print(f"Could not extract from table: {e}")
             
             print(f"\nResults for {model_name}:")
             print(f"  Avg Warmup: {result.get('avg_warmup_ms', 'N/A')} ms")
             print(f"  Avg Inference: {result.get('avg_inference_ms', 'N/A')} ms")
+            print(f"  [1] Kernel Execution Time: {result.get('kernel_execution_time_ms', 'N/A')} ms")
+            print(f"  [2] Kernel Launch Latency: {result.get('kernel_launch_latency_ms', 'N/A')} ms")
+            print(f"  [3] Operator Fusion Rate: {result.get('operator_fusion_rate', 'N/A')}")
+            print(f"  [4] Per-Operator Latency: {result.get('per_operator_latency_ms', 'N/A')} ms")
+            print(f"  [5] Compilation Time: {result.get('kernel_compilation_time_ms', 'N/A')} ms")
+            print(f"  [6] Memory Bandwidth: {result.get('effective_memory_bandwidth_gbps', 'N/A')} GB/s")
+            print(f"  [7] Sync Overhead: {result.get('synchronization_overhead_ms', 'N/A')} ms")
+            print(f"  [8] Peak Memory: {result.get('peak_memory_usage_mb', 'N/A')} MB")
+            print(f"  [9] Time to First Output: {result.get('time_to_first_output_ms', 'N/A')} ms")
+            print(f"  [10] End-to-End Latency: {result.get('end_to_end_latency_ms', 'N/A')} ms")
             print(f"  Status: {result.get('status', 'N/A')}")
             
             self.results.append(result)
             
             return result
             
+        except PlaywrightTimeout as e:
+            print(f"TIMEOUT: {str(e)}")
+            error_result = {
+                'timestamp': datetime.now().isoformat(),
+                'model': model_name,
+                'backend': backend,
+                'warmup_runs': warmup,
+                'measure_runs': measure,
+                'avg_warmup_ms': 'TIMEOUT',
+                'avg_inference_ms': 'TIMEOUT',
+                'kernel_execution_time_ms': 'N/A',
+                'kernel_launch_latency_ms': 'N/A',
+                'operator_fusion_rate': 'N/A',
+                'per_operator_latency_ms': 'N/A',
+                'kernel_compilation_time_ms': 'N/A',
+                'effective_memory_bandwidth_gbps': 'N/A',
+                'synchronization_overhead_ms': 'N/A',
+                'peak_memory_usage_mb': 'N/A',
+                'time_to_first_output_ms': 'N/A',
+                'end_to_end_latency_ms': 'N/A',
+                'status': 'TIMEOUT',
+                'notes': f"Timeout: {str(e)}",
+                'error': str(e)
+            }
+            self.results.append(error_result)
+            return error_result
+            
         except Exception as e:
             print(f"ERROR: Failed to run benchmark for {model_name}: {str(e)}")
+            import traceback
+            traceback.print_exc()
+            
             error_result = {
                 'timestamp': datetime.now().isoformat(),
                 'model': model_name,
@@ -153,20 +247,32 @@ class BenchmarkRunner:
                 'measure_runs': measure,
                 'avg_warmup_ms': 'ERROR',
                 'avg_inference_ms': 'ERROR',
+                'kernel_execution_time_ms': 'N/A',
+                'kernel_launch_latency_ms': 'N/A',
+                'operator_fusion_rate': 'N/A',
+                'per_operator_latency_ms': 'N/A',
+                'kernel_compilation_time_ms': 'N/A',
+                'effective_memory_bandwidth_gbps': 'N/A',
+                'synchronization_overhead_ms': 'N/A',
+                'peak_memory_usage_mb': 'N/A',
+                'time_to_first_output_ms': 'N/A',
+                'end_to_end_latency_ms': 'N/A',
                 'status': 'FAILED',
-                'notes': str(e),
+                'notes': str(e)[:200],
                 'error': str(e)
             }
             self.results.append(error_result)
             return error_result
             
         finally:
-            # Close context and clear cache
-            await context.close()
-            print(f"Closed browser context for {model_name}")
+            try:
+                await context.close()
+                print(f"Closed browser context for {model_name}")
+            except:
+                pass
     
     def parse_results(self, model_name, backend, status_text):
-        """Parse results from the status text"""
+        """Parse results from the status text including all 10 metrics"""
         result = {
             'timestamp': datetime.now().isoformat(),
             'model': model_name,
@@ -175,11 +281,24 @@ class BenchmarkRunner:
             'measure_runs': 'N/A',
             'avg_warmup_ms': 'N/A',
             'avg_inference_ms': 'N/A',
+            # First 5 metrics
+            'kernel_execution_time_ms': 'N/A',
+            'kernel_launch_latency_ms': 'N/A',
+            'operator_fusion_rate': 'N/A',
+            'per_operator_latency_ms': 'N/A',
+            'kernel_compilation_time_ms': 'N/A',
+            # Next 5 metrics
+            'effective_memory_bandwidth_gbps': 'N/A',
+            'synchronization_overhead_ms': 'N/A',
+            'peak_memory_usage_mb': 'N/A',
+            'time_to_first_output_ms': 'N/A',
+            'end_to_end_latency_ms': 'N/A',
             'status': 'UNKNOWN',
-            'notes': ''
+            'notes': '',
+            'session_create_ms': 'N/A'
         }
         
-        # Try to extract success message
+        # Extract basic metrics
         success_pattern = r'SUCCESS: warmup=([\d.]+) ms, inference=([\d.]+) ms'
         success_match = re.search(success_pattern, status_text)
         
@@ -188,19 +307,61 @@ class BenchmarkRunner:
             result['avg_inference_ms'] = success_match.group(2)
             result['status'] = 'SUCCESS'
         
-        # Try to extract DONE message (older format)
-        done_pattern = r'DONE: warmup=([\d.]+) ms, inference=([\d.]+) ms'
-        done_match = re.search(done_pattern, status_text)
+        # Extract first 5 detailed metrics
+        kernel_exec_pattern = r'Kernel Execution Time: ([\d.]+) ms'
+        kernel_exec_match = re.search(kernel_exec_pattern, status_text)
+        if kernel_exec_match:
+            result['kernel_execution_time_ms'] = kernel_exec_match.group(1)
         
-        if done_match:
-            result['avg_warmup_ms'] = done_match.group(1)
-            result['avg_inference_ms'] = done_match.group(2)
-            result['status'] = 'SUCCESS'
+        launch_latency_pattern = r'Kernel Launch Latency: ([\d.]+) ms'
+        launch_latency_match = re.search(launch_latency_pattern, status_text)
+        if launch_latency_match:
+            result['kernel_launch_latency_ms'] = launch_latency_match.group(1)
+        
+        fusion_pattern = r'Operator Fusion Rate: ([\d.]+)%'
+        fusion_match = re.search(fusion_pattern, status_text)
+        if fusion_match:
+            result['operator_fusion_rate'] = fusion_match.group(1) + '%'
+        
+        per_op_pattern = r'Per-Operator Latency: ([\d.]+) ms'
+        per_op_match = re.search(per_op_pattern, status_text)
+        if per_op_match:
+            result['per_operator_latency_ms'] = per_op_match.group(1)
+        
+        compilation_pattern = r'Kernel Compilation Time: ([\d.]+) ms'
+        compilation_match = re.search(compilation_pattern, status_text)
+        if compilation_match:
+            result['kernel_compilation_time_ms'] = compilation_match.group(1)
+        
+        # Extract next 5 detailed metrics
+        mem_bw_pattern = r'Effective Memory Bandwidth: ([\d.]+) GB/s'
+        mem_bw_match = re.search(mem_bw_pattern, status_text)
+        if mem_bw_match:
+            result['effective_memory_bandwidth_gbps'] = mem_bw_match.group(1)
+        
+        sync_oh_pattern = r'Synchronization Overhead: ([\d.]+) ms'
+        sync_oh_match = re.search(sync_oh_pattern, status_text)
+        if sync_oh_match:
+            result['synchronization_overhead_ms'] = sync_oh_match.group(1)
+        
+        peak_mem_pattern = r'Peak Memory Usage: ([\d.]+) MB'
+        peak_mem_match = re.search(peak_mem_pattern, status_text)
+        if peak_mem_match:
+            result['peak_memory_usage_mb'] = peak_mem_match.group(1)
+        
+        ttfo_pattern = r'Time to First Output: ([\d.]+) ms'
+        ttfo_match = re.search(ttfo_pattern, status_text)
+        if ttfo_match:
+            result['time_to_first_output_ms'] = ttfo_match.group(1)
+        
+        e2e_pattern = r'End-to-End Latency: ([\d.]+) ms'
+        e2e_match = re.search(e2e_pattern, status_text)
+        if e2e_match:
+            result['end_to_end_latency_ms'] = e2e_match.group(1)
         
         # Check for failure
         if 'FAILED:' in status_text or 'ERROR' in status_text:
             result['status'] = 'FAILED'
-            # Try to extract error message
             failed_match = re.search(r'FAILED: (.+?)(?:\n|$)', status_text)
             if failed_match:
                 result['notes'] = failed_match.group(1)
@@ -212,25 +373,43 @@ class BenchmarkRunner:
         
         return result
     
-    async def run_all_models(self, backend="wasm", warmup=1, measure=100):
+    async def run_all_models(self, backend="wasm", warmup=1, measure=100, models_filter=None):
         """Run benchmarks for all models"""
-        models = await self.load_models_list()
+        all_models = await self.load_models_list()
+        
+        if models_filter:
+            models = [m for m in all_models if any(f.lower() in m.lower() for f in models_filter)]
+            print(f"\nFiltered to {len(models)} models matching: {models_filter}")
+        else:
+            models = all_models
+        
+        if not models:
+            print("No models to benchmark!")
+            return
         
         print(f"\n{'='*80}")
         print(f"Starting benchmark run for {len(models)} models")
         print(f"Backend: {backend}, Warmup: {warmup}, Measure: {measure}")
+        print(f"Headless: {self.headless}")
         print(f"{'='*80}\n")
         
         async with async_playwright() as p:
-            # Launch browser
+            print("Launching browser...")
             browser = await p.chromium.launch(
-                headless=False,  # Set to True for headless mode
-                args=['--disable-cache', '--disk-cache-size=0']
+                headless=self.headless,
+                args=[
+                    '--disable-cache',
+                    '--disk-cache-size=0',
+                    '--disable-gpu-shader-disk-cache'
+                ]
             )
+            print("Browser launched")
             
             try:
                 for i, model_name in enumerate(models, 1):
-                    print(f"\n[{i}/{len(models)}] Processing model: {model_name}")
+                    print(f"\n{'*'*80}")
+                    print(f"[{i}/{len(models)}] Processing model: {model_name}")
+                    print(f"{'*'*80}")
                     
                     await self.run_single_model(
                         browser, 
@@ -240,18 +419,21 @@ class BenchmarkRunner:
                         measure=measure
                     )
                     
-                    # Small delay between models
-                    await asyncio.sleep(2)
+                    print(f"Waiting before next model...")
+                    await asyncio.sleep(3)
                 
             finally:
                 await browser.close()
                 print("\nBrowser closed")
         
         print(f"\n{'='*80}")
-        print(f"All benchmarks completed! Total models: {len(models)}")
+        print(f"All benchmarks completed!")
+        print(f"Total models: {len(models)}")
+        print(f"Successful: {sum(1 for r in self.results if r.get('status') == 'SUCCESS')}")
+        print(f"Failed: {sum(1 for r in self.results if r.get('status') in ['FAILED', 'TIMEOUT'])}")
         print(f"{'='*80}\n")
     
-    def save_results(self, format='csv'):
+    def save_results(self, format='csv', filename=None):
         """Save results to CSV or Excel file"""
         if not self.results:
             print("No results to save!")
@@ -259,59 +441,116 @@ class BenchmarkRunner:
         
         df = pd.DataFrame(self.results)
         
-        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-        
-        if format == 'csv':
-            output_file = self.output_dir / f"benchmark_results_{timestamp}.csv"
-            df.to_csv(output_file, index=False)
-            print(f"\nResults saved to: {output_file}")
-        elif format == 'excel':
-            output_file = self.output_dir / f"benchmark_results_{timestamp}.xlsx"
-            df.to_excel(output_file, index=False, engine='openpyxl')
-            print(f"\nResults saved to: {output_file}")
+        if filename:
+            output_file = self.output_dir / filename
         else:
-            raise ValueError(f"Unsupported format: {format}")
+            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+            if format == 'csv':
+                output_file = self.output_dir / f"benchmark_metrics_{timestamp}.csv"
+            elif format == 'excel':
+                output_file = self.output_dir / f"benchmark_metrics_{timestamp}.xlsx"
+            else:
+                raise ValueError(f"Unsupported format: {format}")
         
-        # Also print summary
+        if format == 'csv' or str(output_file).endswith('.csv'):
+            df.to_csv(output_file, index=False)
+        elif format == 'excel' or str(output_file).endswith('.xlsx'):
+            df.to_excel(output_file, index=False, engine='openpyxl')
+        
+        print(f"\nResults saved to: {output_file}")
+        
+        # Print summary
         print("\n" + "="*80)
         print("SUMMARY")
         print("="*80)
-        print(df.to_string(index=False))
+        
+        successful = df[df['status'] == 'SUCCESS']
+        if len(successful) > 0:
+            print(f"\nSuccessful runs: {len(successful)}/{len(df)}")
+            
+            try:
+                avg_inf = pd.to_numeric(successful['avg_inference_ms'], errors='coerce')
+                if not avg_inf.isna().all():
+                    print(f"Average inference time: {avg_inf.mean():.3f} ms")
+                    print(f"Min inference time: {avg_inf.min():.3f} ms")
+                    print(f"Max inference time: {avg_inf.max():.3f} ms")
+            except:
+                pass
+        
+        print("\n" + df.to_string(index=False, max_colwidth=40))
         print("="*80)
         
         return output_file
 
 
-async def main():
-    """Main entry point"""
-    
-    # Configuration
-    BENCHMARK_URL = "http://localhost:5173"  # Adjust to your dev server URL
-    MODELS_CONFIG = "./public/models/models.json"  # Adjust path to your models.json
-    BACKEND = "webgl"  # Options: wasm, webgl, webgpu, webnn
-    WARMUP_RUNS = 1
-    MEASURE_RUNS = 100
-    OUTPUT_FORMAT = "csv"  # Options: csv, excel
-    
-    # Create runner
-    runner = BenchmarkRunner(BENCHMARK_URL, MODELS_CONFIG)
-    
-    # Run benchmarks
-    await runner.run_all_models(
-        backend=BACKEND,
-        warmup=WARMUP_RUNS,
-        measure=MEASURE_RUNS
+def parse_args():
+    parser = argparse.ArgumentParser(
+        description='Automate ONNX Runtime Web benchmarks with detailed metrics',
+        formatter_class=argparse.RawDescriptionHelpFormatter
     )
     
-    # Save results
-    runner.save_results(format=OUTPUT_FORMAT)
+    parser.add_argument('--url', '-u', required=True,
+                        help='URL of the benchmark web application')
+    parser.add_argument('--models', '-m', required=True,
+                        help='Path to models.json configuration file')
+    parser.add_argument('--backend', '-b', default='wasm',
+                        choices=['wasm', 'webgl', 'webgpu', 'webnn'],
+                        help='Execution provider backend')
+    parser.add_argument('--warmup', '-w', type=int, default=1,
+                        help='Number of warmup runs')
+    parser.add_argument('--measure', '-r', type=int, default=100,
+                        help='Number of measurement runs')
+    parser.add_argument('--output-dir', '-o', default='benchmark_results',
+                        help='Output directory for results')
+    parser.add_argument('--format', '-f', default='csv',
+                        choices=['csv', 'excel'],
+                        help='Output format')
+    parser.add_argument('--filename', '-n', default=None,
+                        help='Custom output filename')
+    parser.add_argument('--headless', action='store_true',
+                        help='Run browser in headless mode')
+    parser.add_argument('--filter', nargs='+', default=None,
+                        help='Only run models matching these keywords')
+    
+    return parser.parse_args()
+
+
+async def main():
+    args = parse_args()
+    
+    print("="*80)
+    print("ONNX Runtime Web Benchmark - Detailed Metrics")
+    print("="*80)
+    print(f"\nConfiguration:")
+    print(f"  URL: {args.url}")
+    print(f"  Models config: {args.models}")
+    print(f"  Backend: {args.backend}")
+    print(f"  Warmup runs: {args.warmup}")
+    print(f"  Measure runs: {args.measure}")
+    print(f"  Output format: {args.format}")
+    print(f"  Headless: {args.headless}")
+    if args.filter:
+        print(f"  Model filter: {args.filter}")
+    print("="*80)
+    
+    runner = BenchmarkRunner(
+        url=args.url,
+        models_config_path=args.models,
+        output_dir=args.output_dir,
+        headless=args.headless
+    )
+    
+    await runner.run_all_models(
+        backend=args.backend,
+        warmup=args.warmup,
+        measure=args.measure,
+        models_filter=args.filter
+    )
+    
+    runner.save_results(format=args.format, filename=args.filename)
 
 
 if __name__ == "__main__":
-    print("="*80)
-    print("ONNX Runtime Web Benchmark Automation")
-    print("="*80)
-    
     try:
         asyncio.run(main())
     except KeyboardInterrupt:

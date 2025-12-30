@@ -11,7 +11,7 @@
     "postinstall": "npm run prepare-wasm"
   },
   "dependencies": {
-    "onnxruntime-web": "^1.23.2"
+    "onnxruntime-web": "^1.24.0-dev.20251116-b39e144322"
   },
   "devDependencies": {
     "vite": "^6.4.1"

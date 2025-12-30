@@ -21,6 +21,13 @@
       "inputs": [
         { "name": "input", "type": "float32", "dims": [1, 3, 224, 224] }
       ]
+    },
+    {
+      "name": "vit_large_patch16_224_in21k_Opset18",
+      "path": "/models/vit_large_patch16_224_in21k_Opset18.onnx",
+      "inputs": [
+        { "name": "input", "type": "float32", "dims": [1, 3, 224, 224] }
+      ]
     }
   ]
 }
