@@ -247,10 +247,43 @@ class BenchmarkRunner:
             print(f"Loading page: {self.url}")
             await page.goto(self.url, wait_until="networkidle", timeout=60000)
             
+            # Thoroughly clear all browser caches and storage before each model
+            print("Clearing browser cache and storage for clean state...")
+            await page.evaluate("""
+                () => {
+                    // Clear localStorage
+                    try { localStorage.clear(); } catch(e) {}
+                    // Clear sessionStorage
+                    try { sessionStorage.clear(); } catch(e) {}
+                }
+            """)
+            
+            # Unregister service workers
+            try:
+                await page.evaluate("""
+                    async () => {
+                        try {
+                            const registrations = await navigator.serviceWorker.getRegistrations();
+                            for (let registration of registrations) {
+                                await registration.unregister();
+                            }
+                        } catch(e) {}
+                    }
+                """)
+            except:
+                pass
+            
+            # Wait a moment for cache clearing
+            await asyncio.sleep(0.5)
+            
+            # Reload page to ensure clean state
+            print("Reloading page with clean cache...")
+            await page.reload(wait_until="networkidle", timeout=60000)
+            
             # Wait for the page to be ready
             print("Waiting for page elements...")
             await page.locator("#runBtn").wait_for(timeout=30000)
-            print("Page loaded successfully")
+            print("Page loaded successfully with clean cache")
             
             # Select backend
             await page.select_option("#backendSelect", backend)
