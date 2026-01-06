@@ -1,6 +1,14 @@
 {
   "models": [
-    
+
+  {
+  "name": "adv_inception_v3_Opset17",
+  "path": "/models/adv_inception_v3_Opset17_int32.onnx",
+  "inputs": [
+    { "name": "x", "type": "float32", "dims": [1, 3, 299, 299] }
+  ]
+  },
+  
     {
   "name": "bert_Opset17",
   "path": "/models/bert_Opset17_int32.onnx",
@@ -8,7 +16,7 @@
     { "name": "input_ids", "type": "int32", "dims": [1, 128] },
     { "name": "attention_mask", "type": "float32", "dims": [1, 128] }
   ]
-},
+  },
 
     {
     "name": "gpt2lmhead_Opset18",
