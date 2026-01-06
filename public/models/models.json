@@ -1,5 +1,23 @@
 {
   "models": [
+    
+    {
+  "name": "bert_Opset17",
+  "path": "/models/bert_Opset17_int32.onnx",
+  "inputs": [
+    { "name": "input_ids", "type": "int32", "dims": [1, 128] },
+    { "name": "attention_mask", "type": "float32", "dims": [1, 128] }
+  ]
+},
+
+    {
+    "name": "gpt2lmhead_Opset18",
+    "path": "/models/gpt2lmhead_Opset18_int32.onnx",
+    "inputs": [
+      { "name": "input_ids", "type": "int32", "dims": [1, 128] },
+      { "name": "attention_mask", "type": "float32", "dims": [1, 128] }
+  ]
+  },
     {
       "name": "mobilenetv2-1.0-224",
       "path": "/models/mobilenetv2-7.onnx",
