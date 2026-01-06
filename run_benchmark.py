@@ -202,13 +202,14 @@ class GPUMetricsCollector:
 
 
 class BenchmarkRunner:
-    def __init__(self, url, models_config_path, output_dir="benchmark_results", headless=False):
+    def __init__(self, url, models_config_path, output_dir="benchmark_results", headless=False, executable_path=None):
         self.url = url
         self.models_config_path = models_config_path
         self.output_dir = Path(output_dir)
         self.output_dir.mkdir(exist_ok=True)
         self.results = []
         self.headless = headless
+        self.executable_path = executable_path
         
         # Initialize GPU metrics collector
         self.gpu_collector = GPUMetricsCollector()
@@ -761,14 +762,19 @@ class BenchmarkRunner:
         
         async with async_playwright() as p:
             print("Launching browser...")
-            browser = await p.chromium.launch(
-                headless=self.headless,
-                args=[
+            launch_args = {
+                'headless': self.headless,
+                'args': [
                     '--disable-cache',
                     '--disk-cache-size=0',
                     '--disable-gpu-shader-disk-cache'
                 ]
-            )
+            }
+            if self.executable_path:
+                launch_args['executable_path'] = self.executable_path
+                print(f"Using custom browser: {self.executable_path}")
+            
+            browser = await p.chromium.launch(**launch_args)
             print("Browser launched")
             
             try:
@@ -810,15 +816,24 @@ class BenchmarkRunner:
         if filename:
             output_file = self.output_dir / filename
         else:
-            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+            # Use a single, fixed filename that will be appended to
             if format == 'csv':
-                output_file = self.output_dir / f"benchmark_metrics_{timestamp}.csv"
+                output_file = self.output_dir / "benchmark_metrics.csv"
             elif format == 'excel':
-                output_file = self.output_dir / f"benchmark_metrics_{timestamp}.xlsx"
+                output_file = self.output_dir / "benchmark_metrics.xlsx"
             else:
                 raise ValueError(f"Unsupported format: {format}")
         
         if format == 'csv' or str(output_file).endswith('.csv'):
+            # Check if file exists - if yes, append; if no, create with headers
+            if output_file.exists():
+                # Read existing data and append new results
+                existing_df = pd.read_csv(output_file)
+                df = pd.concat([existing_df, df], ignore_index=True)
+                print(f"Appending {len(self.results)} new results to existing file...")
+            else:
+                print(f"Creating new benchmark results file...")
+            
             df.to_csv(output_file, index=False)
         elif format == 'excel' or str(output_file).endswith('.xlsx'):
             df.to_excel(output_file, index=False, engine='openpyxl')
@@ -875,6 +890,8 @@ def parse_args():
                         help='Custom output filename')
     parser.add_argument('--headless', action='store_true',
                         help='Run browser in headless mode')
+    parser.add_argument('--executable-path', type=str, default=None,
+                        help='Path to custom browser executable (e.g., Chrome Dev, Canary, etc.)')
     parser.add_argument('--filter', nargs='+', default=None,
                         help='Only run models matching these keywords')
     
@@ -903,7 +920,8 @@ async def main():
         url=args.url,
         models_config_path=args.models,
         output_dir=args.output_dir,
-        headless=args.headless
+        headless=args.headless,
+        executable_path=args.executable_path
     )
     
     await runner.run_all_models(
