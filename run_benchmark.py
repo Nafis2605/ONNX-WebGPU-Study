@@ -341,8 +341,24 @@ class BenchmarkRunner:
             print("Extracting results...")
             status_text = await page.locator("#status").inner_text()
             
+            # Detect actual backend being used
+            actual_backend = await page.evaluate("""
+                () => {
+                    try {
+                        const statusText = document.getElementById('status')?.innerText || '';
+                        if (statusText.includes('WebGPU') || statusText.includes('webgpu')) return 'webgpu';
+                        if (statusText.includes('WebGL') || statusText.includes('webgl')) return 'webgl';
+                        if (statusText.includes('WASM') || statusText.includes('wasm')) return 'wasm';
+                        if (statusText.includes('WebNN') || statusText.includes('webnn')) return 'webnn';
+                        return 'unknown';
+                    } catch (e) {
+                        return 'unknown';
+                    }
+                }
+            """)
+            
             # Parse results from status text
-            result = self.parse_results(model_name, backend, status_text)
+            result = self.parse_results(model_name, backend, status_text, actual_backend)
             
             # Also try to get from table if available
             try:
@@ -383,6 +399,10 @@ class BenchmarkRunner:
                 print(f"Could not extract from table: {e}")
             
             print(f"\nResults for {model_name}:")
+            print(f"  Requested Backend: {backend}")
+            print(f"  Actual Backend: {result.get('actual_backend', 'unknown')}")
+            if result.get('backend_mismatch') == 'YES':
+                print(f"  ⚠️  WARNING: Backend mismatch detected!")
             print(f"  Avg Warmup: {result.get('avg_warmup_ms', 'N/A')} ms")
             print(f"  Avg Inference: {result.get('avg_inference_ms', 'N/A')} ms")
             print(f"  [1] Kernel Execution Time: {result.get('kernel_execution_time_ms', 'N/A')} ms")
@@ -487,12 +507,14 @@ class BenchmarkRunner:
             except:
                 pass
     
-    def parse_results(self, model_name, backend, status_text):
+    def parse_results(self, model_name, backend, status_text, actual_backend='unknown'):
         """Parse results from the status text including all 10 metrics and top 5 kernels"""
         result = {
             'timestamp': datetime.now().isoformat(),
             'model': model_name,
             'backend': backend,
+            'actual_backend': actual_backend,
+            'backend_mismatch': 'NO' if actual_backend.lower() == backend.lower() else 'YES',
             'warmup_runs': 'N/A',
             'measure_runs': 'N/A',
             'avg_warmup_ms': 'N/A',
