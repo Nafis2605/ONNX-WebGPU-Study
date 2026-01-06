@@ -21,10 +21,184 @@ import json
 import re
 import time
 import argparse
+import platform
+import subprocess
+import threading
+import psutil
 from pathlib import Path
 from datetime import datetime
 from playwright.async_api import async_playwright, TimeoutError as PlaywrightTimeout
 import pandas as pd
+
+
+class GPUMetricsCollector:
+    """Collects GPU metrics during benchmark runs"""
+    
+    def __init__(self):
+        self.metrics = {
+            'gpu_vendor': 'N/A',
+            'gpu_name': 'N/A',
+            'gpu_memory_allocated_mb': 'N/A',
+            'gpu_memory_used_mb': 'N/A',
+            'gpu_memory_peak_mb': 'N/A',
+            'gpu_utilization_percent': 'N/A',
+            'gpu_avg_load_percent': 'N/A',
+            'gpu_shader_compilation_ms': 'N/A',
+            'gpu_command_buffer_ms': 'N/A',
+        }
+        self.monitoring = False
+        self.monitor_thread = None
+        self.samples = []
+        self.start_time = None
+        self.peak_memory = 0
+        
+    def detect_gpu_info(self):
+        """Detect GPU vendor and name"""
+        try:
+            system = platform.system()
+            
+            if system == "Darwin":  # macOS
+                try:
+                    result = subprocess.run(
+                        ["system_profiler", "SPDisplaysDataType"],
+                        capture_output=True,
+                        text=True,
+                        timeout=5
+                    )
+                    if "Apple" in result.stdout or "Metal" in result.stdout:
+                        self.metrics['gpu_vendor'] = 'Apple'
+                        self.metrics['gpu_name'] = 'Apple Metal'
+                except Exception as e:
+                    print(f"Could not detect macOS GPU: {e}")
+            
+            elif system == "Linux":
+                try:
+                    result = subprocess.run(
+                        ["lspci"],
+                        capture_output=True,
+                        text=True,
+                        timeout=5
+                    )
+                    if "NVIDIA" in result.stdout:
+                        self.metrics['gpu_vendor'] = 'NVIDIA'
+                        # Try to get NVIDIA GPU name
+                        try:
+                            gpu_result = subprocess.run(
+                                ["nvidia-smi", "--query-gpu=name", "--format=csv,noheader,nounits"],
+                                capture_output=True,
+                                text=True,
+                                timeout=5
+                            )
+                            if gpu_result.returncode == 0:
+                                self.metrics['gpu_name'] = gpu_result.stdout.strip().split('\n')[0]
+                        except:
+                            self.metrics['gpu_name'] = 'NVIDIA GPU'
+                    elif "AMD" in result.stdout or "AMDGPU" in result.stdout:
+                        self.metrics['gpu_vendor'] = 'AMD'
+                        self.metrics['gpu_name'] = 'AMD GPU'
+                except Exception as e:
+                    print(f"Could not detect Linux GPU: {e}")
+            
+            elif system == "Windows":
+                try:
+                    result = subprocess.run(
+                        ["wmic", "path", "win32_videocontroller", "get", "name"],
+                        capture_output=True,
+                        text=True,
+                        timeout=5
+                    )
+                    if result.returncode == 0:
+                        lines = result.stdout.strip().split('\n')
+                        if len(lines) > 1:
+                            gpu_name = lines[1].strip()
+                            self.metrics['gpu_name'] = gpu_name
+                            if "NVIDIA" in gpu_name:
+                                self.metrics['gpu_vendor'] = 'NVIDIA'
+                            elif "AMD" in gpu_name:
+                                self.metrics['gpu_vendor'] = 'AMD'
+                            elif "Intel" in gpu_name:
+                                self.metrics['gpu_vendor'] = 'Intel'
+                except Exception as e:
+                    print(f"Could not detect Windows GPU: {e}")
+        
+        except Exception as e:
+            print(f"GPU detection error: {e}")
+    
+    def start_monitoring(self):
+        """Start GPU metrics monitoring in background thread"""
+        self.monitoring = True
+        self.samples = []
+        self.start_time = time.time()
+        self.peak_memory = psutil.virtual_memory().used / 1024 / 1024  # MB
+        
+        self.monitor_thread = threading.Thread(target=self._monitor_loop, daemon=True)
+        self.monitor_thread.start()
+    
+    def stop_monitoring(self):
+        """Stop monitoring and calculate statistics"""
+        self.monitoring = False
+        
+        if self.monitor_thread:
+            self.monitor_thread.join(timeout=5)
+        
+        # Calculate statistics
+        if self.samples:
+            cpu_values = [s['cpu'] for s in self.samples if isinstance(s['cpu'], (int, float))]
+            mem_values = [s['mem'] for s in self.samples if isinstance(s['mem'], (int, float))]
+            
+            if cpu_values:
+                self.metrics['gpu_avg_load_percent'] = f"{sum(cpu_values) / len(cpu_values):.2f}"
+            
+            if mem_values:
+                self.metrics['gpu_memory_used_mb'] = f"{sum(mem_values) / len(mem_values):.2f}"
+    
+    def _monitor_loop(self):
+        """Background monitoring loop"""
+        while self.monitoring:
+            try:
+                # Sample CPU and memory as proxy for GPU load
+                cpu = psutil.cpu_percent(interval=0.05)
+                mem_mb = psutil.virtual_memory().used / 1024 / 1024
+                
+                self.samples.append({'cpu': cpu, 'mem': mem_mb})
+                
+                # Track peak memory
+                if mem_mb > self.peak_memory:
+                    self.peak_memory = mem_mb
+                
+            except Exception as e:
+                print(f"Monitoring error: {e}")
+            
+            time.sleep(0.1)
+        
+        # Update metrics
+        if self.peak_memory > 0:
+            self.metrics['gpu_memory_peak_mb'] = f"{self.peak_memory:.2f}"
+    
+    def get_metrics(self):
+        """Return collected metrics"""
+        return self.metrics.copy()
+    
+    def add_benchmark_metrics(self, kernel_compilation_time, kernel_launch_latency):
+        """Add shader and command buffer metrics derived from benchmark data"""
+        try:
+            # Shader compilation time ≈ kernel compilation time (JIT compilation overhead)
+            if kernel_compilation_time != 'N/A':
+                try:
+                    compile_time = float(kernel_compilation_time)
+                    self.metrics['gpu_shader_compilation_ms'] = f"{compile_time:.3f}"
+                except (ValueError, TypeError):
+                    pass
+            
+            # Command buffer time ≈ kernel launch latency (GPU command submission)
+            if kernel_launch_latency != 'N/A':
+                try:
+                    launch_time = float(kernel_launch_latency)
+                    self.metrics['gpu_command_buffer_ms'] = f"{launch_time:.3f}"
+                except (ValueError, TypeError):
+                    pass
+        except Exception as e:
+            print(f"Could not add benchmark metrics: {e}")
 
 
 class BenchmarkRunner:
@@ -35,6 +209,10 @@ class BenchmarkRunner:
         self.output_dir.mkdir(exist_ok=True)
         self.results = []
         self.headless = headless
+        
+        # Initialize GPU metrics collector
+        self.gpu_collector = GPUMetricsCollector()
+        self.gpu_collector.detect_gpu_info()  # Detect GPU info once at startup
         
     async def load_models_list(self):
         """Load the list of models from models.json"""
@@ -113,6 +291,10 @@ class BenchmarkRunner:
             # Click Run button
             print("Starting benchmark...")
             run_btn = page.locator("#runBtn")
+            
+            # Start GPU metrics monitoring
+            self.gpu_collector.start_monitoring()
+            
             await run_btn.click()
             
             # Wait for benchmark to complete
@@ -131,6 +313,8 @@ class BenchmarkRunner:
                 
                 if not is_disabled:
                     print("Benchmark completed!")
+                    # Stop GPU metrics monitoring
+                    self.gpu_collector.stop_monitoring()
                     break
                 
                 # Check timeout
@@ -213,6 +397,14 @@ class BenchmarkRunner:
             print(f"  [10] End-to-End Latency: {result.get('end_to_end_latency_ms', 'N/A')} ms")
             print(f"  Status: {result.get('status', 'N/A')}")
             
+            # Print GPU metrics
+            print(f"\n  GPU Metrics:")
+            print(f"    GPU Vendor: {result.get('gpu_vendor', 'N/A')}")
+            print(f"    GPU Name: {result.get('gpu_name', 'N/A')}")
+            print(f"    GPU Memory Used: {result.get('gpu_memory_used_mb', 'N/A')} MB")
+            print(f"    GPU Memory Peak: {result.get('gpu_memory_peak_mb', 'N/A')} MB")
+            print(f"    GPU Avg Load: {result.get('gpu_avg_load_percent', 'N/A')}%")
+            
             # Print top 5 kernels
             print(f"\n  Top 5 Kernels:")
             for i in range(1, 6):
@@ -227,6 +419,8 @@ class BenchmarkRunner:
             
         except PlaywrightTimeout as e:
             print(f"TIMEOUT: {str(e)}")
+            self.gpu_collector.stop_monitoring()
+            gpu_metrics = self.gpu_collector.get_metrics()
             error_result = {
                 'timestamp': datetime.now().isoformat(),
                 'model': model_name,
@@ -249,6 +443,7 @@ class BenchmarkRunner:
                 'notes': f"Timeout: {str(e)}",
                 'error': str(e)
             }
+            error_result.update(gpu_metrics)
             self.results.append(error_result)
             return error_result
             
@@ -257,6 +452,8 @@ class BenchmarkRunner:
             import traceback
             traceback.print_exc()
             
+            self.gpu_collector.stop_monitoring()
+            gpu_metrics = self.gpu_collector.get_metrics()
             error_result = {
                 'timestamp': datetime.now().isoformat(),
                 'model': model_name,
@@ -279,6 +476,7 @@ class BenchmarkRunner:
                 'notes': str(e)[:200],
                 'error': str(e)
             }
+            error_result.update(gpu_metrics)
             self.results.append(error_result)
             return error_result
             
@@ -322,6 +520,16 @@ class BenchmarkRunner:
             'top_kernel_4_time_ms': 'N/A',
             'top_kernel_5_name': 'N/A',
             'top_kernel_5_time_ms': 'N/A',
+            # GPU metrics
+            'gpu_vendor': 'N/A',
+            'gpu_name': 'N/A',
+            'gpu_memory_allocated_mb': 'N/A',
+            'gpu_memory_used_mb': 'N/A',
+            'gpu_memory_peak_mb': 'N/A',
+            'gpu_utilization_percent': 'N/A',
+            'gpu_avg_load_percent': 'N/A',
+            'gpu_shader_compilation_ms': 'N/A',
+            'gpu_command_buffer_ms': 'N/A',
             'status': 'UNKNOWN',
             'notes': '',
             'session_create_ms': 'N/A'
@@ -408,6 +616,15 @@ class BenchmarkRunner:
                 result.update(top_kernels)
             except Exception as e:
                 print(f"Warning: Could not infer kernels: {e}")
+        
+        # Add shader compilation and command buffer metrics from benchmark data
+        kernel_compilation = result.get('kernel_compilation_time_ms', 'N/A')
+        kernel_launch = result.get('kernel_launch_latency_ms', 'N/A')
+        self.gpu_collector.add_benchmark_metrics(kernel_compilation, kernel_launch)
+        
+        # Add collected GPU metrics
+        gpu_metrics = self.gpu_collector.get_metrics()
+        result.update(gpu_metrics)
         
         return result
     

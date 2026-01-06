@@ -1,5 +1,0 @@
-timestamp,model,backend,warmup_runs,measure_runs,avg_warmup_ms,avg_inference_ms,kernel_execution_time_ms,kernel_launch_latency_ms,operator_fusion_rate,per_operator_latency_ms,kernel_compilation_time_ms,effective_memory_bandwidth_gbps,synchronization_overhead_ms,peak_memory_usage_mb,time_to_first_output_ms,end_to_end_latency_ms,status,notes,session_create_ms
-2026-01-04T23:00:46.301072,mobilenetv2-1.0-224,webgl,2,50,52.900,45.202,45.132,0.070,0.7%,45.132,0.304,0.012,0.096,0.00,45.500,45.594,SUCCESS,session_create_ms=267.8,N/A
-2026-01-04T23:01:21.643105,resnet50-v2,webgl,2,50,518.350,397.526,397.264,0.262,59.2%,397.264,561.606,0.002,0.298,0.00,947.900,402.471,SUCCESS,session_create_ms=753.4,N/A
-2026-01-04T23:01:41.138360,alexnet_Opset16,webgl,2,50,107.200,76.648,76.504,0.144,50.8%,76.504,77.400,0.008,0.173,0.00,152.500,77.996,SUCCESS,session_create_ms=1429.0,N/A
-2026-01-04T23:08:28.049940,vit_large_patch16_224_in21k_Opset18,webgl,2,50,6396.350,7107.680,7104.994,2.686,0.0%,7104.994,0.000,0.000,2.729,0.00,5849.900,7083.050,SUCCESS,session_create_ms=8836.2,N/A

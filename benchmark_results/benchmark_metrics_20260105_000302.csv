@@ -1,6 +1,0 @@
-timestamp,model,backend,warmup_runs,measure_runs,avg_warmup_ms,avg_inference_ms,kernel_execution_time_ms,kernel_launch_latency_ms,operator_fusion_rate,per_operator_latency_ms,kernel_compilation_time_ms,effective_memory_bandwidth_gbps,synchronization_overhead_ms,peak_memory_usage_mb,time_to_first_output_ms,end_to_end_latency_ms,status,notes,session_create_ms
-2026-01-04T23:56:57.976304,gpt2lmhead_Opset18,webgl,2,50,1529.100,1184.842,1184.752,0.090,39.9%,1184.752,775.876,0.000,0.125,0.00,1945.200,1198.208,SUCCESS,session_create_ms=3009.6,N/A
-2026-01-04T23:57:09.455174,mobilenetv2-1.0-224,webgl,2,50,63.900,44.892,44.820,0.072,2.5%,44.820,1.131,0.012,0.100,0.00,46.000,45.723,SUCCESS,session_create_ms=204.4,N/A
-2026-01-04T23:57:34.671127,resnet50-v2,webgl,2,50,327.050,315.244,315.166,0.078,0.0%,315.166,0.000,0.002,0.102,0.00,314.200,315.800,SUCCESS,session_create_ms=358.1,N/A
-2026-01-04T23:57:47.424161,alexnet_Opset16,webgl,2,50,61.950,56.140,56.072,0.068,0.7%,56.072,0.367,0.010,0.094,0.00,56.500,56.458,SUCCESS,session_create_ms=841.2,N/A
-2026-01-05T00:02:59.240236,vit_large_patch16_224_in21k_Opset18,webgl,2,50,4902.150,5648.774,5647.278,1.496,0.0%,5647.278,0.000,0.000,1.512,0.00,4911.200,5621.569,SUCCESS,session_create_ms=5097.1,N/A
