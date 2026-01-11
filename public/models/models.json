@@ -1,46 +1,6 @@
 {
   "models": [
 
-  {
-  "name": "adv_inception_v3_Opset17",
-  "path": "/models/adv_inception_v3_Opset17_int32.onnx",
-  "inputs": [
-    { "name": "x", "type": "float32", "dims": [1, 3, 299, 299] }
-  ]
-  },
-  
-    {
-  "name": "bert_Opset17",
-  "path": "/models/bert_Opset17_int32.onnx",
-  "inputs": [
-    { "name": "input_ids", "type": "int32", "dims": [1, 128] },
-    { "name": "attention_mask", "type": "float32", "dims": [1, 128] }
-  ]
-  },
-
-    {
-    "name": "gpt2lmhead_Opset18",
-    "path": "/models/gpt2lmhead_Opset18_int32.onnx",
-    "inputs": [
-      { "name": "input_ids", "type": "int32", "dims": [1, 128] },
-      { "name": "attention_mask", "type": "float32", "dims": [1, 128] }
-  ]
-  },
-    {
-      "name": "mobilenetv2-1.0-224",
-      "path": "/models/mobilenetv2-7.onnx",
-      "inputs": [
-        { "name": "input", "type": "float32", "dims": [1, 3, 224, 224] }
-      ]
-    },
-    {
-      "name": "resnet50-v2",
-      "path": "/models/resnet50-v2-7.onnx",
-      "inputs": [
-        { "name": "data", "type": "float32", "dims": [1, 3, 224, 224] }
-      ]
-    }
-    ,
     {
       "name": "alexnet_Opset16",
       "path": "/models/alexnet_Opset16.onnx",
@@ -48,12 +8,89 @@
         { "name": "input", "type": "float32", "dims": [1, 3, 224, 224] }
       ]
     },
+
+    {
+      "name": "mobilenetv3_large_100_Opset17",
+      "path": "/models/mobilenetv3_large_100_Opset17.onnx",
+      "inputs": [
+        { "name": "x", "type": "float32", "dims": [1, 3, 224, 224] }
+      ]
+    },
+
+    {
+      "name": "resnet50-v2",
+      "path": "/models/resnet50-v2-7.onnx",
+      "inputs": [
+        { "name": "data", "type": "float32", "dims": [1, 3, 224, 224] }
+      ]
+    },
+
+    {
+      "name": "adv_inception_v3_Opset17",
+      "path": "/models/adv_inception_v3_Opset17_int32.onnx",
+      "inputs": [
+        { "name": "x", "type": "float32", "dims": [1, 3, 299, 299] }
+      ]
+    },
+
+    {
+      "name": "efficientnet_b5_Opset17",
+      "path": "/models/efficientnet_b5_Opset17.onnx",
+      "inputs": [
+        { "name": "x", "type": "float32", "dims": [1, 3, 448, 448] }
+      ]
+    },
+
     {
       "name": "vit_large_patch16_224_in21k_Opset18",
       "path": "/models/vit_large_patch16_224_in21k_Opset18.onnx",
       "inputs": [
         { "name": "input", "type": "float32", "dims": [1, 3, 224, 224] }
       ]
+    },
+
+    {
+      "name": "yolov2-coco-9",
+      "path": "/models/yolov2-coco-9.onnx",
+      "inputs": [
+        { "name": "input.1", "type": "float32", "dims": [1, 3, 416, 416] }
+      ]
+    },
+
+    {
+      "name": "deeplabv3p-resnet50-human",
+      "path": "/models/deeplabv3p-resnet50-human.onnx",
+      "inputs": [
+        { "name": "input_1", "type": "float32", "dims": [1, 512, 512, 3] }
+      ]
+    },
+
+    {
+      "name": "mobilebert_Opset18",
+      "path": "/models/mobilebert_Opset17.onnx",
+      "inputs": [
+        { "name": "input_ids", "type": "int64", "dims": [1, 128] },
+        { "name": "attention_mask", "type": "float32", "dims": [1, 128] }
+      ]
+    },
+
+    {
+      "name": "bert_Opset17",
+      "path": "/models/bert_Opset17_int32.onnx",
+      "inputs": [
+        { "name": "input_ids", "type": "int32", "dims": [1, 128] },
+        { "name": "attention_mask", "type": "float32", "dims": [1, 128] }
+      ]
+    },
+
+    {
+      "name": "gpt2lmhead_Opset18",
+      "path": "/models/gpt2lmhead_Opset18_int32.onnx",
+      "inputs": [
+        { "name": "input_ids", "type": "int32", "dims": [1, 128] },
+        { "name": "attention_mask", "type": "float32", "dims": [1, 128] }
+      ]
     }
+
   ]
 }

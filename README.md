@@ -301,33 +301,31 @@ Per-run metrics:
 
 ## Important: GPU Power Draw on Browser Workloads
 
-**Real power draw collection in milliwatts (mW) for precision:**
+**Real power draw measurement only (no estimation):**
 
-The system now uses real powermetrics/nvidia-smi readings with intelligent fallback estimation, recorded in **milliwatts (mW)** with 2 decimal precision (e.g., 10.50 mW instead of 0.01 W):
+The system records real GPU power draw from system monitoring tools when available:
 
 - **macOS:** 
-  - Uses direct `powermetrics` (if passwordless sudo configured)
-  - Falls back to utilization-based estimation if powermetrics unavailable
-  - Example values: 10.50 mW (idle) to 20000 mW (peak browser workload)
-  - **Key finding:** Browser WebGPU shows 10-100 mW even at 85%+ GPU utilization
+  - Uses direct `powermetrics` (requires passwordless sudo configured)
+  - Returns actual watts converted to milliwatts (mW)
+  - Returns "N/A" if powermetrics unavailable
   
 - **Linux/Windows (NVIDIA):**
   - Uses direct `nvidia-smi power.draw` if hardware supports it
-  - Falls back to utilization-based estimation if unsupported
-  - Example values: 50000 mW (idle) to 350000 mW (peak workload)
-  - **Key finding:** Like macOS, browsers don't trigger peak GPU power states
+  - Returns actual watts converted to milliwatts (mW)
+  - Returns "N/A" if nvidia-smi unavailable or hardware doesn't support power monitoring
 
-**Why browser power draw is low:**
-- Browser GPU execution is fundamentally different from native CUDA/Metal
-- WebGPU/WebGL have additional overhead and don't fully utilize power-efficient GPU modes
-- System profilers may not capture browser GPU power accurately
-- This is a platform limitation, not a code issue
+**Real vs Browser Limitations:**
+- When real power draw is available, recorded values are actual measurements
+- Browser WebGPU workloads typically show low power even at high GPU utilization (10-100 mW on macOS, varies on NVIDIA)
+- This is not a bug—browser environments don't trigger full GPU power states like native applications
+- Low values indicate browser-specific GPU access patterns, not zero GPU activity
 
-**For accurate power metrics, use:**
-- External USB power meters (most accurate for system power)
-- Xcode Instruments Metal GPU Profiler (macOS)
-- NVIDIA GPU profiling tools with native CUDA
-- Native ONNX Runtime Python benchmarks
+**For production power analysis with accurate measurements:**
+- Use external USB power meters (measures entire system power)
+- Use Xcode Instruments Metal GPU Profiler (macOS)
+- Use NVIDIA's native GPU profiling tools with CUDA
+- Benchmark native ONNX Runtime Python (non-browser) for true GPU power data
 
 ---
 

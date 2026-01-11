@@ -41,9 +41,8 @@ class GPUMetricsCollector:
             'gpu_memory_allocated_mb': 'N/A',
             'gpu_memory_used_mb': 'N/A',
             'gpu_memory_peak_mb': 'N/A',
-            'gpu_utilization_percent': 'N/A',
-            'gpu_avg_load_percent': 'N/A',
-            'gpu_memory_utilization_percent': 'N/A',
+            'gpu_core_utilization_percent': 'N/A',
+            'gpu_shared_memory_utilization_percent': 'N/A',
             'gpu_power_draw_mw': 'N/A',
             'gpu_shader_compilation_ms': 'N/A',
             'gpu_command_buffer_ms': 'N/A',
@@ -55,6 +54,10 @@ class GPUMetricsCollector:
         self.start_time = None
         self.peak_memory = 0
         self.last_interval_time = 0
+        # Cache for power draw to avoid frequent powermetrics calls
+        self._power_cache = None
+        self._power_cache_time = None
+        self._power_cache_interval = 2.0  # Cache power for 2 seconds
         
     def detect_gpu_info(self):
         """Detect GPU vendor and name"""
@@ -137,14 +140,20 @@ class GPUMetricsCollector:
         
         self.monitor_thread = threading.Thread(target=self._monitor_loop, daemon=True)
         self.monitor_thread.start()
+        time.sleep(0.05)  # Give thread time to start running
     
     def stop_monitoring(self):
         """Stop monitoring and calculate statistics"""
         self.monitoring = False
         
         if self.monitor_thread:
-            self.monitor_thread.join(timeout=5)
+            self.monitor_thread.join(timeout=10)  # Increased timeout to wait for last iteration
         
+        # Now that thread has stopped, calculate statistics
+        self._calculate_metrics()
+    
+    def _calculate_metrics(self):
+        """Calculate aggregated metrics from collected samples"""
         # Calculate statistics
         if self.samples:
             gpu_util_values = [s['gpu_util'] for s in self.samples if isinstance(s['gpu_util'], (int, float))]
@@ -153,10 +162,10 @@ class GPUMetricsCollector:
             mem_values = [s['mem'] for s in self.samples if isinstance(s['mem'], (int, float))]
             
             if gpu_util_values:
-                self.metrics['gpu_avg_load_percent'] = f"{sum(gpu_util_values) / len(gpu_util_values):.2f}"
+                self.metrics['gpu_core_utilization_percent'] = f"{sum(gpu_util_values) / len(gpu_util_values):.2f}"
             
             if gpu_mem_util_values:
-                self.metrics['gpu_memory_utilization_percent'] = f"{sum(gpu_mem_util_values) / len(gpu_mem_util_values):.2f}"
+                self.metrics['gpu_shared_memory_utilization_percent'] = f"{sum(gpu_mem_util_values) / len(gpu_mem_util_values):.2f}"
             
             if gpu_power_values:
                 self.metrics['gpu_power_draw_mw'] = f"{sum(gpu_power_values) / len(gpu_power_values):.2f}"
@@ -165,7 +174,11 @@ class GPUMetricsCollector:
                 self.metrics['gpu_memory_used_mb'] = f"{sum(mem_values) / len(mem_values):.2f}"
     
     def get_gpu_utilization(self):
-        """Get GPU utilization percentage (system-dependent)"""
+        """Get GPU core utilization percentage.
+        
+        Note: On Apple Silicon (macOS), this measures system memory utilization as a proxy,
+        since GPU and CPU share the same memory pool and individual GPU metrics are unavailable.
+        """
         try:
             system = platform.system()
             
@@ -240,7 +253,11 @@ class GPUMetricsCollector:
             return 0
     
     def get_gpu_memory_utilization(self):
-        """Get GPU memory utilization percentage"""
+        """Get GPU shared memory utilization percentage.
+        
+        Note: On Apple Silicon (macOS), GPU memory is shared with system memory.
+        This returns system memory utilization percentage since both metrics measure the same value on this platform.
+        """
         try:
             system = platform.system()
             
@@ -321,23 +338,26 @@ class GPUMetricsCollector:
     
     def get_gpu_power_draw(self):
         """
-        Get GPU power draw in milliwatts (mW).
+        Get GPU power draw in milliwatts (mW) from real measurements only.
+        Uses caching to avoid too-frequent system calls.
         
-        macOS: 
-          - Method 1: Direct powermetrics (if configured)
-          - Method 2: Estimated from GPU utilization (85% util → ~17000mW, 100% → ~20000mW)
+        macOS: Direct powermetrics (requires passwordless sudo setup)
+        Linux/Windows: Direct nvidia-smi power monitoring
         
-        Linux/Windows:
-          - Method 1: Direct nvidia-smi (if supported)
-          - Method 2: Estimated from GPU + memory utilization (85% → ~305000mW, 100% → ~350000mW)
-        
-        Returns: float in mW (e.g., 10.50 mW instead of 0.01 W)
+        Returns: float in mW (e.g., 10.50 mW) or "N/A" if unavailable
         """
+        # Use cached value if recent enough
+        import time as time_module
+        current_time = time_module.time()
+        if self._power_cache is not None and self._power_cache_time is not None:
+            if current_time - self._power_cache_time < self._power_cache_interval:
+                return self._power_cache
+        
         try:
             system = platform.system()
             
             if system == "Darwin":  # macOS
-                # Try direct powermetrics first
+                # Try direct powermetrics only - no estimation
                 try:
                     result = subprocess.run(
                         ["sudo", "-n", "powermetrics", "-s", "gpu_power", "-n", "1"],
@@ -356,24 +376,21 @@ class GPUMetricsCollector:
                                     # Convert to mW
                                     if unit == 'W':
                                         power = power * 1000
-                                    return round(power, 2)
+                                    power_mw = round(power, 2)
+                                    # Cache the result
+                                    self._power_cache = power_mw
+                                    self._power_cache_time = current_time
+                                    return power_mw
                 except:
                     pass
                 
-                # Fallback: Estimate from GPU utilization
-                # Apple M-series: 500mW base + (utilization * 200) → ~17000mW at 85%, ~20000mW at 100%
-                try:
-                    gpu_util = self.get_gpu_utilization()
-                    if isinstance(gpu_util, (int, float)) and gpu_util > 0:
-                        estimated = 500 + (float(gpu_util) * 200)
-                        return round(min(estimated, 25000), 2)
-                except:
-                    pass
-                
+                # Cache N/A as well
+                self._power_cache = 'N/A'
+                self._power_cache_time = current_time
                 return 'N/A'
             
             elif system == "Linux" or system == "Windows":
-                # Try direct nvidia-smi first
+                # Try direct nvidia-smi only - no estimation
                 try:
                     result = subprocess.run(
                         ["nvidia-smi", "--query-gpu=power.draw", "--format=csv,noheader"],
@@ -385,29 +402,18 @@ class GPUMetricsCollector:
                         power_str = result.stdout.strip().split('\n')[0].replace('W', '').strip()
                         if power_str and power_str != 'N/A':
                             power = float(power_str) * 1000  # Convert W to mW
-                            if power > 500:  # Trust if > 500mW
-                                return round(power, 2)
+                            power_mw = round(power, 2)
+                            # Cache the result
+                            self._power_cache = power_mw
+                            self._power_cache_time = current_time
+                            return power_mw
                 except:
                     pass
                 
-                # Fallback: Estimate from GPU + memory utilization
-                # NVIDIA: 50000mW base + (utilization * 3000) + (mem * 500) → ~305000mW at 85%, ~350000mW at 100%
-                try:
-                    gpu_util = self.get_gpu_utilization()
-                    gpu_mem_util = self.get_gpu_memory_utilization()
-                    
-                    if isinstance(gpu_util, (int, float)) and gpu_util > 0:
-                        base_power = 50000.0
-                        util_power = float(gpu_util) * 3000.0
-                        
-                        if isinstance(gpu_mem_util, (int, float)):
-                            util_power += float(gpu_mem_util) * 500.0
-                        
-                        estimated = base_power + util_power
-                        return round(min(estimated, 500000.0), 2)
-                except:
-                    pass
-                
+                # Cache N/A as well
+                self._power_cache = 'N/A'
+                self._power_cache_time = current_time
+                return 'N/A'
                 return 'N/A'
             
             return 'N/A'
@@ -476,8 +482,8 @@ class GPUMetricsCollector:
                     
                     self.interval_samples.append({
                         'timestamp_sec': round(current_time, 2),
-                        'gpu_utilization_percent': round(gpu_util, 2),
-                        'gpu_memory_utilization_percent': round(gpu_mem_util, 2),
+                        'gpu_core_utilization_percent': round(gpu_util, 2),
+                        'gpu_shared_memory_utilization_percent': round(gpu_mem_util, 2),
                         'gpu_power_draw_mw': power_value,
                         'memory_mb': round(mem_mb, 2)
                     })
@@ -659,7 +665,7 @@ class BenchmarkRunner:
             await run_btn.click()
             
             # Wait for benchmark to complete
-            timeout_seconds = 600  # 10 minutes timeout
+            timeout_seconds = 60000  # ~16.67 hours timeout
             start_time = time.time()
             last_log_time = start_time
             
@@ -798,7 +804,7 @@ class BenchmarkRunner:
             print(f"    GPU Name: {result.get('gpu_name', 'N/A')}")
             print(f"    GPU Memory Used: {result.get('gpu_memory_used_mb', 'N/A')} MB")
             print(f"    GPU Memory Peak: {result.get('gpu_memory_peak_mb', 'N/A')} MB")
-            print(f"    GPU Avg Load: {result.get('gpu_avg_load_percent', 'N/A')}%")
+            print(f"    GPU Core Utilization: {result.get('gpu_core_utilization_percent', 'N/A')}%")
             
             # Print top 5 kernels
             print(f"\n  Top 5 Kernels:")
@@ -923,8 +929,6 @@ class BenchmarkRunner:
             'gpu_memory_allocated_mb': 'N/A',
             'gpu_memory_used_mb': 'N/A',
             'gpu_memory_peak_mb': 'N/A',
-            'gpu_utilization_percent': 'N/A',
-            'gpu_avg_load_percent': 'N/A',
             'gpu_shader_compilation_ms': 'N/A',
             'gpu_command_buffer_ms': 'N/A',
             'status': 'UNKNOWN',
