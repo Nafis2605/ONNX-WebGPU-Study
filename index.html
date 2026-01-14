@@ -115,6 +115,22 @@
         cursor: not-allowed;
       }
       
+      #testBackendBtn {
+        background: #2196F3;
+        color: white;
+      }
+      
+      #testBackendBtn:hover:not(:disabled) {
+        background: #0b7dda;
+        transform: translateY(-1px);
+        box-shadow: 0 2px 8px rgba(33, 150, 243, 0.3);
+      }
+      
+      #testBackendBtn:disabled {
+        background: #ccc;
+        cursor: not-allowed;
+      }
+      
       hr {
         border: none;
         border-top: 1px solid #ddd;
@@ -303,6 +319,7 @@
       <div class="button-group">
         <button id="runBtn">▶ Run Benchmark</button>
         <button id="stopBtn" disabled>⬛ Stop</button>
+        <button id="testBackendBtn">🧪 Test Backend Detection</button>
       </div>
 
       <hr />
