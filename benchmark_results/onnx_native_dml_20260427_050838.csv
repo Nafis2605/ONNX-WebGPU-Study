@@ -1,0 +1,4 @@
+timestamp,model,provider,provider_used,trial_id,session_create_ms,first_call_ms,stabilization_iters,inference_mean_ms,inference_std_ms,inference_iters,status,provider_mismatch,actual_providers,notes,gpu_vendor,gpu_name,gpu_utilization_percent,gpu_memory_utilization_percent,gpu_power_draw_watts
+2026-04-27T05:08:33.419961,alexnet_Opset16,dml,DmlExecutionProvider,1,3160.1850,3.9568,3,1.2463,0.2293,10,SUCCESS,False,"DmlExecutionProvider,CPUExecutionProvider",,NVIDIA,NVIDIA GeForce RTX 3060,4.0,1.0,32.89
+2026-04-27T05:08:35.803899,alexnet_Opset16,dml,DmlExecutionProvider,2,346.8121,2.8005,3,1.3301,0.2748,10,SUCCESS,False,"DmlExecutionProvider,CPUExecutionProvider",,NVIDIA,NVIDIA GeForce RTX 3060,4.0,1.0,33.0
+2026-04-27T05:08:38.124082,alexnet_Opset16,dml,DmlExecutionProvider,3,286.7033,3.0216,3,1.2582,0.1643,10,SUCCESS,False,"DmlExecutionProvider,CPUExecutionProvider",,NVIDIA,NVIDIA GeForce RTX 3060,4.0,1.0,32.99

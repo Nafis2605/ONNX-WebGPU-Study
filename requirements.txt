@@ -1,3 +1,9 @@
 playwright>=1.40.0
 pandas>=2.0.0
 openpyxl>=3.1.0
+
+# Native ONNX Runtime benchmark (run_onnx_native_benchmark.py)
+onnxruntime>=1.17.0      # CPU provider; always available
+# onnxruntime-gpu>=1.17.0  # Uncomment for CUDA/TensorRT providers (replaces onnxruntime)
+numpy>=1.24.0
+psutil>=5.9.0

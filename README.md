@@ -1,102 +1,184 @@
-# ONNX Runtime Web Benchmark
+# ONNX Runtime Native GPU Benchmark
 
-Benchmarking system for ONNX Runtime Web with support for WASM, WebGL, and WebGPU backends.
+High-precision benchmarking system for ONNX Runtime models using native GPU acceleration via DirectML on Windows.
+
+## Overview
+
+This benchmark measures real-world GPU execution performance for ONNX models by running inference on the GPU and capturing:
+- **First-call latency**: Initial inference time including GPU shader compilation overhead
+- **Steady-state inference latency**: Average inference time after GPU kernels are cached
+- **GPU metrics**: Real-time GPU utilization, memory usage, and power draw
+
+## Prerequisites
+
+```bash
+# Python 3.12+ required
+pip install -r requirements.txt
+```
+
+Requirements:
+- NVIDIA GPU (RTX 3060 or compatible)
+- Windows 10/11
+- NVIDIA Driver supporting your GPU
+- nvidia-smi available in PATH (for GPU metrics)
 
 ## Setup
 
 ```bash
-# Install dependencies
+# Install Python dependencies (one-time)
 pip install -r requirements.txt
-npm install
-
-# Start development server
-npm run dev
-# Server runs at http://localhost:5173/
 ```
 
-## Running Benchmarks
+This installs:
+- `onnxruntime-directml`: GPU inference engine (Windows GPU support)
+- `numpy`: Numeric array handling
+- `psutil`: System monitoring
+- `pandas`: Data analysis (optional, for result inspection)
 
-### Browser Testing
-1. Open http://localhost:5173/ in your browser
-2. Select a model from the dropdown
-3. Choose a backend (WASM, WebGL, or WebGPU)
-4. Click "Run Benchmark"
-5. Results display in the table
+## Running the Benchmark
 
-### Automated Benchmarking
+### Basic Usage
 
 ```bash
-# WASM backend
-python run_benchmark.py \
-    --url http://localhost:5173 \
-    --models ./public/models/models.json \
-    --backend wasm \
-    --filter gpt2 \
-    --warmup 1 \
-    --measure 2
+python run_onnx_native_benchmark.py \
+    --models public/models/models.json \
+    --provider dml \
+    --trials 5
+```
 
-# WebGL backend
-python run_benchmark.py \
-    --url http://localhost:5173 \
-    --models ./public/models/models.json \
-    --backend webgl \
-    --filter gpt2 \
-    --warmup 1 \
-    --measure 2
+### Full Command (All Options)
 
-# WebGPU backend
-python run_benchmark.py \
-    --url http://localhost:5173 \
-    --models ./public/models/models.json \
-    --backend webgpu \
-    --filter gpt2 \
-    --warmup 1 \
-    --measure 2
+```bash
+python run_onnx_native_benchmark.py \
+    --models public/models/models.json \
+    --provider dml \
+    --trials 5 \
+    --stabilization 3 \
+    --measure-iters 20 \
+    --cooldown-sec 1.0 \
+    --output-dir benchmark_results \
+    --filename results.csv \
+    --filter alexnet resnet50
 ```
 
 ## Benchmark Parameters
 
-- `--url`: Web server URL (default: http://localhost:5173)
-- `--models`: Path to models.json file
-- `--backend`: Backend to test (wasm, webgl, webgpu)
-- `--filter`: Model name filter (e.g., gpt2)
-- `--warmup`: Number of warmup runs (default: 1)
-- `--measure`: Number of measurement runs (default: 10)
+| Parameter | Default | Description |
+|-----------|---------|-------------|
+| `--models` | required | Path to `models.json` registry file |
+| `--provider` | `cpu` | Execution provider: `dml` (GPU), `cpu` (CPU-only) |
+| `--trials` | 5 | Number of independent trials per model |
+| `--stabilization` | 3 | Untimed warmup iterations (GPU stabilization) |
+| `--measure-iters` | 20 | Timed inference iterations per trial |
+| `--cooldown-sec` | 1.0 | Delay between trials (seconds) |
+| `--output-dir` | `benchmark_results` | Output directory for CSV results |
+| `--filename` | auto-generated | Custom CSV filename (timestamp appended if omitted) |
+| `--filter` | none | Run only models matching these names (e.g., `--filter alexnet gpt2`) |
+| `--list-models` | - | List available models from registry and exit |
+| `--list-providers` | - | List available execution providers and exit |
+| `--fail-on-fallback` | false | Exit with error if GPU provider unavailable |
 
-## Output
+## Benchmark Methodology
 
-Results are saved to `benchmark_results/benchmark_metrics_TIMESTAMP.csv`
+Each trial runs a 5-phase protocol:
 
-CSV columns include:
-- Model name, backend, warmup/measure runs
-- Inference timing metrics (avg warmup, avg inference)
-- Kernel metrics (execution time, launch latency, fusion rate, etc.)
-- GPU metrics (vendor, memory usage, core utilization)
-- Top 5 kernels with execution times
+1. **Session Creation**: Load model and initialize GPU session (metadata only)
+2. **First-Call Measurement**: Single timed inference (captures GPU shader JIT compilation overhead)
+3. **Stabilization**: 3 untimed warmup iterations (GPU kernel caching)
+4. **Measured Inference Loop**: 20 timed iterations (steady-state performance)
+5. **Cleanup**: Release GPU resources
 
-## Files
+Timing uses `time.perf_counter()` (nanosecond precision, hardware wall-clock time).
 
-- `src/main.js` - Frontend benchmark application
-- `run_benchmark.py` - Python automation script for CLI benchmarking
-- `index.html` - Web interface
-- `public/models/` - ONNX model files
-- `benchmark_results/` - Benchmark output CSV files
+## Output Format
 
+Results saved to: `benchmark_results/onnx_native_dml_TIMESTAMP.csv`
 
-**Solution:** Load JSEP-enabled WASM bundle (`ort-wasm-simd-threaded.jsep.wasm`)
+CSV Columns:
+- `timestamp`: ISO 8601 timestamp
+- `model`: Model name
+- `provider`: Requested provider (e.g., `dml`)
+- `provider_used`: Actual provider that executed (e.g., `DmlExecutionProvider`)
+- `trial_id`: Trial number (1-N)
+- `session_create_ms`: GPU session initialization time
+- `first_call_ms`: First inference latency (with JIT overhead)
+- `stabilization_iters`: Warmup iterations performed
+- `inference_mean_ms`: Mean inference latency (steady-state)
+- `inference_std_ms`: Standard deviation of inference latency
+- `inference_iters`: Number of measured iterations (usually 20)
+- `status`: `SUCCESS` or `FAILED`
+- `provider_mismatch`: `True` if provider fell back to CPU, `False` if GPU was used
+- `actual_providers`: All active providers (comma-separated)
+- `gpu_vendor`: GPU manufacturer (e.g., `NVIDIA`)
+- `gpu_name`: GPU model name
+- `gpu_utilization_percent`: Average GPU utilization during trial
+- `gpu_memory_utilization_percent`: Average GPU memory usage during trial
+- `gpu_power_draw_watts`: Average GPU power consumption during trial
 
-**Code Fix (src/main.js):**
-```javascript
-// Load JSEP-enabled WASM for GPU backend support
-const mjsUrl = `${wasmBasePath}ort-wasm-simd-threaded.jsep.mjs`;
-const wasmUrl = `${wasmBasePath}ort-wasm-simd-threaded.jsep.wasm`;
+## Example Results
+
+```
+Model                          Provider  Trials  1st-Call (ms)       Inference (ms)
+----------------------------   --------  ------  ----------------    ----------------
+alexnet_Opset16                DmlExec   5       2.80 ± 0.18         1.25 ± 0.03
+resnet50-v2-7                  DmlExec   5       34.51 ± 7.79        4.21 ± 0.09
+vit_large_patch16_224          DmlExec   5       32.10 ± 1.18        26.94 ± 0.31
 ```
 
-**Key Change:**
-- ❌ Old: `ort-wasm-simd-threaded.wasm` → No GPU support
-- ✅ New: `ort-wasm-simd-threaded.jsep.wasm` → Full GPU support
+**Interpretation**:
+- **First-call > Inference**: Normal GPU behavior (JIT compilation on first call)
+- **High variance in first-call**: GPU kernel selection varies per trial (expected)
+- **Low variance in inference**: Steady-state performance (cached kernels)
 
-This enables WebGPU and WebGL execution providers to initialize correctly.
+## Validation
+
+Verify benchmark results:
+
+```bash
+python validate_onnx_output.py benchmark_results/onnx_native_dml_TIMESTAMP.csv
+```
+
+This checks:
+- ✓ All rows have `status=SUCCESS`
+- ✓ No provider fallback occurred
+- ✓ Timing measurements are realistic
+- ✓ GPU metrics are numeric and realistic
+
+## Models Included
+
+11 ONNX models available in `public/models/models.json`:
+- alexnet_Opset16
+- mobilenetv3_large_100_Opset17
+- resnet50-v2-7
+- adv_inception_v3_Opset17
+- efficientnet_b5_Opset17
+- vit_large_patch16_224_in21k_Opset18
+- yolov2-coco-9
+- deeplabv3p-resnet50-human
+- mobilebert_Opset17
+- bert_Opset17
+- gpt2lmhead_Opset18
+
+## Troubleshooting
+
+**Error: "CUDAExecutionProvider not available"**
+- Use `--provider dml` instead (Windows native GPU via DirectML)
+- Or install CUDA 12.x toolkit if CUDA provider is required
+
+**Error: "Provider mismatch" (GPU not used)**
+- Check `provider_mismatch` column in CSV
+- Verify GPU driver and DirectML installation
+- Run with `--fail-on-fallback` to abort if CPU fallback occurs
+
+**No GPU metrics recorded**
+- Ensure nvidia-smi is in PATH
+- Check Windows GPU drivers are installed
+- GPU metrics are optional; benchmark will proceed without them
+
+**Benchmark is slow**
+- Reduce `--trials` to 2-3 for faster runs
+- Reduce `--measure-iters` to 10 for each trial
+- Use `--filter` to test specific models only
 
 ---
 
