@@ -1,0 +1,19 @@
+{
+ "models": [
+  {
+   "name": "cpu_node_probe",
+   "path": "/test/cpu_node_probe.onnx",
+   "inputs": [
+    {
+     "name": "x",
+     "type": "float32",
+     "dims": [
+      2,
+      3,
+      3
+     ]
+    }
+   ]
+  }
+ ]
+}

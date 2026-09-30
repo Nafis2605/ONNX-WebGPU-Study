@@ -3,7 +3,8 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>ONNX Runtime Web Benchmark - Complete Metrics</title>
+    <title>ONNX Runtime Web Benchmark</title>
+    <link rel="icon" href="data:," />
     <style>
       * {
         box-sizing: border-box;
@@ -280,10 +281,19 @@
   </head>
   <body>
     <div class="container">
-      <h2>🚀 ONNX Runtime Web Benchmark - Complete Performance Metrics</h2>
+      <h2>ONNX Runtime Web Benchmark</h2>
+
+      <!-- Declared page workload for responsiveness mode (group 4); idle otherwise. -->
+      <div class="control-group">
+        <canvas id="animCanvas" width="480" height="270" style="background:#101820; max-width:100%;"></canvas>
+        <div style="margin-top:6px;">
+          <button id="interactBtn">Interaction target</button>
+          <span>clicks handled: <span id="interactCount">0</span></span>
+        </div>
+      </div>
 
       <div class="info-box">
-        <strong>📊 10 Detailed Metrics:</strong> This benchmark captures comprehensive performance data including kernel execution, memory usage, synchronization overhead, and end-to-end latency for deep analysis of model performance.
+        <strong>Manual mode.</strong> Each backend runs on exactly one execution provider, with no fallback. A run only counts as <em>ok</em> when graphics-API counters confirm the backend did the work. Automated study runs use <code>run_benchmark.py</code>, which drives this page through <code>window.__bench</code>.
       </div>
 
       <div class="controls">
@@ -293,13 +303,12 @@
             <option value="wasm">WASM (CPU)</option>
             <option value="webgl">WebGL</option>
             <option value="webgpu">WebGPU</option>
-            <option value="webnn">WebNN</option>
           </select>
         </div>
 
         <div class="control-group">
           <label for="warmupRuns">Warm-up runs:</label>
-          <input id="warmupRuns" type="number" min="0" value="1" />
+          <input id="warmupRuns" type="number" min="0" value="10" />
         </div>
 
         <div class="control-group">
@@ -319,7 +328,6 @@
       <div class="button-group">
         <button id="runBtn">▶ Run Benchmark</button>
         <button id="stopBtn" disabled>⬛ Stop</button>
-        <button id="testBackendBtn">🧪 Test Backend Detection</button>
       </div>
 
       <hr />
@@ -332,62 +340,20 @@
       <div>
         <h3><span class="section-icon">📈</span> Results</h3>
         
-        <div class="metrics-legend">
-          <h4>📋 Metrics Guide (10 metrics total)</h4>
-          
-          <div class="metric-group">
-            <span class="metric-name">1. Kernel Execution Time:</span> Pure computation time (ms)
-          </div>
-          <div class="metric-group">
-            <span class="metric-name">2. Kernel Launch Latency:</span> Overhead to start execution (ms)
-          </div>
-          <div class="metric-group">
-            <span class="metric-name">3. Operator Fusion Rate:</span> Optimization effectiveness (%)
-          </div>
-          <div class="metric-group">
-            <span class="metric-name">4. Per-Operator Latency:</span> Avg time per operator (ms)
-          </div>
-          <div class="metric-group">
-            <span class="metric-name">5. Kernel Compilation Time:</span> JIT compilation cost (ms)
-          </div>
-          <div class="metric-group">
-            <span class="metric-name">6. Effective Memory Bandwidth:</span> Data transfer rate (GB/s)
-          </div>
-          <div class="metric-group">
-            <span class="metric-name">7. Synchronization Overhead:</span> Time waiting for async ops (ms)
-          </div>
-          <div class="metric-group">
-            <span class="metric-name">8. Peak Memory Usage:</span> Maximum memory consumed (MB)
-          </div>
-          <div class="metric-group">
-            <span class="metric-name">9. Time to First Output:</span> Latency until first result (ms)
-          </div>
-          <div class="metric-group">
-            <span class="metric-name">10. End-to-End Latency:</span> Total wall-clock time (ms)
-          </div>
-        </div>
-        
         <div class="table-container">
           <table>
             <thead>
               <tr>
                 <th>Model</th>
                 <th>Backend</th>
-                <th>Warmup<br>Runs</th>
-                <th>Avg Warmup<br>(ms)</th>
-                <th>Measure<br>Runs</th>
-                <th>Avg Inference<br>(ms)</th>
-                <th>1. Kernel Exec<br>(ms)</th>
-                <th>2. Launch Lat<br>(ms)</th>
-                <th>3. Fusion<br>Rate (%)</th>
-                <th>4. Per-Op Lat<br>(ms)</th>
-                <th>5. Compilation<br>(ms)</th>
-                <th>6. Mem BW<br>(GB/s)</th>
-                <th>7. Sync OH<br>(ms)</th>
-                <th>8. Peak Mem<br>(MB)</th>
-                <th>9. Time to 1st<br>(ms)</th>
-                <th>10. E2E Lat<br>(ms)</th>
-                <th>Notes</th>
+                <th>Status</th>
+                <th>Verification / error</th>
+                <th>Fetch<br>(ms)</th>
+                <th>Session create<br>(ms)</th>
+                <th>First run<br>(ms)</th>
+                <th>Measured<br>runs</th>
+                <th>Median<br>(ms)</th>
+                <th>p95<br>(ms)</th>
               </tr>
             </thead>
             <tbody id="resultsBody"></tbody>

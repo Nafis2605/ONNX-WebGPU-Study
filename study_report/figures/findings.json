@@ -1,0 +1,2617 @@
+{
+ "study": "C:\\Users\\fanaf\\OneDrive\\Desktop\\ONNX-WebGPU-Study\\benchmark_results\\study_full",
+ "stages": {
+  "batch": "benchmark_results\\study_full\\batch\\20260927_195702",
+  "correctness": "benchmark_results\\study_full\\correctness\\20260928_041912_merged",
+  "latency": "benchmark_results\\study_full\\latency\\20260928_040125_merged",
+  "llm": "benchmark_results\\study_full\\llm\\20260927_224804",
+  "load": "benchmark_results\\study_full\\load\\20260928_042040_merged",
+  "profile": "benchmark_results\\study_full\\profile\\20260928_041423_merged",
+  "readback": "benchmark_results\\study_full\\readback\\20260927_203703",
+  "readback_micro": "benchmark_results\\study_full\\readback_micro\\20260928_052619",
+  "responsiveness": "benchmark_results\\study_full\\responsiveness\\20260928_041935_merged",
+  "shapes": "benchmark_results\\study_full\\shapes\\20260927_203048",
+  "webgl_readback": "benchmark_results\\study_full\\webgl_readback\\20260928_052744"
+ },
+ "0_validity": {
+  "files": [
+   "fig00_validity.png",
+   "fig00_validity.pdf"
+  ],
+  "checks": {
+   "timer_granularity_ms": 0.004999876022338867,
+   "stationarity": {
+    "experiments": 270,
+    "drifting": 100,
+    "drifting_list": [
+     {
+      "model": "adv_inception_v3_Opset17",
+      "backend": "wasm-1t",
+      "trial": 1,
+      "rho": -0.523
+     },
+     {
+      "model": "alexnet_Opset16",
+      "backend": "wasm-1t",
+      "trial": 1,
+      "rho": -0.309
+     },
+     {
+      "model": "alexnet_Opset16",
+      "backend": "wasm-8t",
+      "trial": 1,
+      "rho": -0.466
+     },
+     {
+      "model": "alexnet_Opset16",
+      "backend": "webgpu",
+      "trial": 1,
+      "rho": -0.394
+     },
+     {
+      "model": "alexnet_Opset16",
+      "backend": "webgpu-capture",
+      "trial": 1,
+      "rho": -0.365
+     },
+     {
+      "model": "alexnet_Opset16",
+      "backend": "webgpu-gpuio",
+      "trial": 1,
+      "rho": -0.39
+     },
+     {
+      "model": "alexnet_Opset16",
+      "backend": "webgpu-native",
+      "trial": 1,
+      "rho": -0.379
+     },
+     {
+      "model": "bert_Opset17",
+      "backend": "wasm-1t",
+      "trial": 1,
+      "rho": -0.407
+     },
+     {
+      "model": "bert_Opset17",
+      "backend": "wasm-4t",
+      "trial": 1,
+      "rho": -0.511
+     },
+     {
+      "model": "bert_Opset17",
+      "backend": "webgpu-capture",
+      "trial": 1,
+      "rho": 0.348
+     },
+     {
+      "model": "bert_Opset17",
+      "backend": "webgpu-gpuio",
+      "trial": 1,
+      "rho": 0.456
+     },
+     {
+      "model": "deeplabv3p-resnet50-human",
+      "backend": "wasm-8t",
+      "trial": 1,
+      "rho": 0.663
+     },
+     {
+      "model": "deeplabv3p-resnet50-human",
+      "backend": "webgpu-native",
+      "trial": 1,
+      "rho": 0.511
+     },
+     {
+      "model": "efficientnet_b5_Opset17",
+      "backend": "wasm-1t",
+      "trial": 1,
+      "rho": 0.385
+     },
+     {
+      "model": "efficientnet_b5_Opset17",
+      "backend": "wasm-4t",
+      "trial": 1,
+      "rho": 0.572
+     },
+     {
+      "model": "efficientnet_b5_Opset17",
+      "backend": "wasm-8t",
+      "trial": 1,
+      "rho": -0.84
+     },
+     {
+      "model": "efficientnet_b5_Opset17",
+      "backend": "webgl",
+      "trial": 1,
+      "rho": 0.49
+     },
+     {
+      "model": "efficientnet_b5_Opset17",
+      "backend": "webgpu-capture",
+      "trial": 1,
+      "rho": -0.541
+     },
+     {
+      "model": "gpt2lmhead_Opset18",
+      "backend": "wasm-4t",
+      "trial": 1,
+      "rho": 0.571
+     },
+     {
+      "model": "gpt2lmhead_Opset18",
+      "backend": "webgpu-native",
+      "trial": 1,
+      "rho": 0.451
+     },
+     {
+      "model": "mobilebert_Opset17",
+      "backend": "webgpu-gpuio",
+      "trial": 1,
+      "rho": -0.347
+     },
+     {
+      "model": "mobilenetv2-7",
+      "backend": "webgl",
+      "trial": 1,
+      "rho": -0.483
+     },
+     {
+      "model": "mobilenetv2-7",
+      "backend": "webgpu",
+      "trial": 1,
+      "rho": -0.395
+     },
+     {
+      "model": "mobilenetv3_large_100_Opset17",
+      "backend": "wasm-8t",
+      "trial": 1,
+      "rho": -0.45
+     },
+     {
+      "model": "resnet50-v2",
+      "backend": "wasm-1t",
+      "trial": 1,
+      "rho": 0.511
+     },
+     {
+      "model": "resnet50-v2",
+      "backend": "webgl",
+      "trial": 1,
+      "rho": -0.59
+     },
+     {
+      "model": "resnet50-v2",
+      "backend": "webgpu-native",
+      "trial": 1,
+      "rho": -0.388
+     },
+     {
+      "model": "vit_large_patch16_224_in21k_Opset18",
+      "backend": "wasm-4t",
+      "trial": 1,
+      "rho": 0.301
+     },
+     {
+      "model": "vit_large_patch16_224_in21k_Opset18",
+      "backend": "webgpu",
+      "trial": 1,
+      "rho": 0.697
+     },
+     {
+      "model": "vit_large_patch16_224_in21k_Opset18",
+      "backend": "webgpu-capture",
+      "trial": 1,
+      "rho": 0.682
+     },
+     {
+      "model": "vit_large_patch16_224_in21k_Opset18",
+      "backend": "webgpu-gpuio",
+      "trial": 1,
+      "rho": 0.622
+     },
+     {
+      "model": "vit_large_patch16_224_in21k_Opset18",
+      "backend": "webgpu-native",
+      "trial": 1,
+      "rho": 0.313
+     },
+     {
+      "model": "yolov2-coco-9",
+      "backend": "wasm-1t",
+      "trial": 1,
+      "rho": 0.315
+     },
+     {
+      "model": "adv_inception_v3_Opset17",
+      "backend": "wasm-4t",
+      "trial": 2,
+      "rho": -0.528
+     },
+     {
+      "model": "adv_inception_v3_Opset17",
+      "backend": "webgpu-gpuio",
+      "trial": 2,
+      "rho": 0.369
+     },
+     {
+      "model": "alexnet_Opset16",
+      "backend": "wasm-1t",
+      "trial": 2,
+      "rho": 0.425
+     },
+     {
+      "model": "alexnet_Opset16",
+      "backend": "webgpu",
+      "trial": 2,
+      "rho": -0.363
+     },
+     {
+      "model": "alexnet_Opset16",
+      "backend": "webgpu-gpuio",
+      "trial": 2,
+      "rho": -0.322
+     },
+     {
+      "model": "alexnet_Opset16",
+      "backend": "webgpu-native",
+      "trial": 2,
+      "rho": -0.386
+     },
+     {
+      "model": "bert_Opset17",
+      "backend": "wasm-1t",
+      "trial": 2,
+      "rho": 0.553
+     },
+     {
+      "model": "bert_Opset17",
+      "backend": "wasm-4t",
+      "trial": 2,
+      "rho": 0.571
+     },
+     {
+      "model": "bert_Opset17",
+      "backend": "wasm-8t",
+      "trial": 2,
+      "rho": -0.435
+     },
+     {
+      "model": "deeplabv3p-resnet50-human",
+      "backend": "wasm-1t",
+      "trial": 2,
+      "rho": -0.57
+     },
+     {
+      "model": "efficientnet_b5_Opset17",
+      "backend": "wasm-1t",
+      "trial": 2,
+      "rho": 0.396
+     },
+     {
+      "model": "efficientnet_b5_Opset17",
+      "backend": "wasm-4t",
+      "trial": 2,
+      "rho": 0.633
+     },
+     {
+      "model": "efficientnet_b5_Opset17",
+      "backend": "webgl",
+      "trial": 2,
+      "rho": 0.667
+     },
+     {
+      "model": "gpt2lmhead_Opset18",
+      "backend": "wasm-4t",
+      "trial": 2,
+      "rho": 0.497
+     },
+     {
+      "model": "mobilebert_Opset17",
+      "backend": "wasm-1t",
+      "trial": 2,
+      "rho": 0.645
+     },
+     {
+      "model": "mobilebert_Opset17",
+      "backend": "webgpu-gpuio",
+      "trial": 2,
+      "rho": -0.367
+     },
+     {
+      "model": "mobilebert_Opset17",
+      "backend": "webgpu-native",
+      "trial": 2,
+      "rho": 0.321
+     },
+     {
+      "model": "mobilenetv2-7",
+      "backend": "wasm-8t",
+      "trial": 2,
+      "rho": -0.366
+     },
+     {
+      "model": "mobilenetv2-7",
+      "backend": "webgl",
+      "trial": 2,
+      "rho": -0.501
+     },
+     {
+      "model": "mobilenetv2-7",
+      "backend": "webgpu",
+      "trial": 2,
+      "rho": -0.359
+     },
+     {
+      "model": "mobilenetv2-7",
+      "backend": "webgpu-native",
+      "trial": 2,
+      "rho": -0.312
+     },
+     {
+      "model": "mobilenetv3_large_100_Opset17",
+      "backend": "wasm-1t",
+      "trial": 2,
+      "rho": -0.333
+     },
+     {
+      "model": "mobilenetv3_large_100_Opset17",
+      "backend": "wasm-4t",
+      "trial": 2,
+      "rho": -0.329
+     },
+     {
+      "model": "mobilenetv3_large_100_Opset17",
+      "backend": "wasm-8t",
+      "trial": 2,
+      "rho": -0.364
+     },
+     {
+      "model": "mobilenetv3_large_100_Opset17",
+      "backend": "webgpu",
+      "trial": 2,
+      "rho": -0.301
+     },
+     {
+      "model": "mobilenetv3_large_100_Opset17",
+      "backend": "webgpu-native",
+      "trial": 2,
+      "rho": -0.481
+     },
+     {
+      "model": "resnet50-v2",
+      "backend": "wasm-1t",
+      "trial": 2,
+      "rho": -0.686
+     },
+     {
+      "model": "resnet50-v2",
+      "backend": "wasm-4t",
+      "trial": 2,
+      "rho": -0.452
+     },
+     {
+      "model": "vit_large_patch16_224_in21k_Opset18",
+      "backend": "webgpu",
+      "trial": 2,
+      "rho": 0.638
+     },
+     {
+      "model": "vit_large_patch16_224_in21k_Opset18",
+      "backend": "webgpu-capture",
+      "trial": 2,
+      "rho": 0.722
+     },
+     {
+      "model": "vit_large_patch16_224_in21k_Opset18",
+      "backend": "webgpu-gpuio",
+      "trial": 2,
+      "rho": 0.626
+     },
+     {
+      "model": "vit_large_patch16_224_in21k_Opset18",
+      "backend": "webgpu-native",
+      "trial": 2,
+      "rho": 0.309
+     },
+     {
+      "model": "yolov2-coco-9",
+      "backend": "wasm-1t",
+      "trial": 2,
+      "rho": 0.453
+     },
+     {
+      "model": "yolov2-coco-9",
+      "backend": "webgl",
+      "trial": 2,
+      "rho": 0.518
+     },
+     {
+      "model": "yolov2-coco-9",
+      "backend": "webgpu",
+      "trial": 2,
+      "rho": -0.393
+     },
+     {
+      "model": "adv_inception_v3_Opset17",
+      "backend": "webgpu",
+      "trial": 3,
+      "rho": -0.492
+     },
+     {
+      "model": "alexnet_Opset16",
+      "backend": "wasm-4t",
+      "trial": 3,
+      "rho": -0.429
+     },
+     {
+      "model": "alexnet_Opset16",
+      "backend": "webgpu",
+      "trial": 3,
+      "rho": -0.496
+     },
+     {
+      "model": "alexnet_Opset16",
+      "backend": "webgpu-capture",
+      "trial": 3,
+      "rho": -0.452
+     },
+     {
+      "model": "alexnet_Opset16",
+      "backend": "webgpu-native",
+      "trial": 3,
+      "rho": -0.495
+     },
+     {
+      "model": "bert_Opset17",
+      "backend": "wasm-4t",
+      "trial": 3,
+      "rho": -0.576
+     },
+     {
+      "model": "bert_Opset17",
+      "backend": "wasm-8t",
+      "trial": 3,
+      "rho": -0.753
+     },
+     {
+      "model": "deeplabv3p-resnet50-human",
+      "backend": "wasm-1t",
+      "trial": 3,
+      "rho": -0.409
+     },
+     {
+      "model": "deeplabv3p-resnet50-human",
+      "backend": "wasm-4t",
+      "trial": 3,
+      "rho": 0.403
+     },
+     {
+      "model": "efficientnet_b5_Opset17",
+      "backend": "wasm-1t",
+      "trial": 3,
+      "rho": -0.716
+     },
+     {
+      "model": "efficientnet_b5_Opset17",
+      "backend": "wasm-4t",
+      "trial": 3,
+      "rho": -0.594
+     },
+     {
+      "model": "efficientnet_b5_Opset17",
+      "backend": "webgl",
+      "trial": 3,
+      "rho": 0.684
+     },
+     {
+      "model": "efficientnet_b5_Opset17",
+      "backend": "webgpu",
+      "trial": 3,
+      "rho": 0.347
+     },
+     {
+      "model": "gpt2lmhead_Opset18",
+      "backend": "wasm-1t",
+      "trial": 3,
+      "rho": 0.302
+     },
+     {
+      "model": "gpt2lmhead_Opset18",
+      "backend": "webgpu-native",
+      "trial": 3,
+      "rho": -0.602
+     },
+     {
+      "model": "mobilebert_Opset17",
+      "backend": "webgpu-gpuio",
+      "trial": 3,
+      "rho": -0.362
+     },
+     {
+      "model": "mobilenetv2-7",
+      "backend": "wasm-4t",
+      "trial": 3,
+      "rho": -0.472
+     },
+     {
+      "model": "mobilenetv2-7",
+      "backend": "wasm-8t",
+      "trial": 3,
+      "rho": -0.504
+     },
+     {
+      "model": "mobilenetv2-7",
+      "backend": "webgl",
+      "trial": 3,
+      "rho": -0.625
+     },
+     {
+      "model": "mobilenetv2-7",
+      "backend": "webgpu",
+      "trial": 3,
+      "rho": -0.398
+     },
+     {
+      "model": "mobilenetv2-7",
+      "backend": "webgpu-native",
+      "trial": 3,
+      "rho": -0.368
+     },
+     {
+      "model": "mobilenetv3_large_100_Opset17",
+      "backend": "wasm-1t",
+      "trial": 3,
+      "rho": -0.378
+     },
+     {
+      "model": "mobilenetv3_large_100_Opset17",
+      "backend": "wasm-8t",
+      "trial": 3,
+      "rho": -0.674
+     },
+     {
+      "model": "mobilenetv3_large_100_Opset17",
+      "backend": "webgpu-gpuio",
+      "trial": 3,
+      "rho": -0.488
+     },
+     {
+      "model": "resnet50-v2",
+      "backend": "wasm-1t",
+      "trial": 3,
+      "rho": -0.54
+     },
+     {
+      "model": "resnet50-v2",
+      "backend": "wasm-4t",
+      "trial": 3,
+      "rho": 0.538
+     },
+     {
+      "model": "resnet50-v2",
+      "backend": "wasm-8t",
+      "trial": 3,
+      "rho": -0.344
+     },
+     {
+      "model": "resnet50-v2",
+      "backend": "webgpu-native",
+      "trial": 3,
+      "rho": -0.301
+     },
+     {
+      "model": "vit_large_patch16_224_in21k_Opset18",
+      "backend": "wasm-8t",
+      "trial": 3,
+      "rho": 0.735
+     },
+     {
+      "model": "vit_large_patch16_224_in21k_Opset18",
+      "backend": "webgpu",
+      "trial": 3,
+      "rho": 0.596
+     },
+     {
+      "model": "vit_large_patch16_224_in21k_Opset18",
+      "backend": "webgpu-capture",
+      "trial": 3,
+      "rho": 0.731
+     },
+     {
+      "model": "yolov2-coco-9",
+      "backend": "wasm-4t",
+      "trial": 3,
+      "rho": -0.482
+     }
+    ]
+   },
+   "between_trial_cov_median": 0.014946850620473446,
+   "between_trial_cov_max": {
+    "value": 0.10565711251328765,
+    "at": [
+     "mobilenetv2-7",
+     "wasm-4t"
+    ]
+   },
+   "icc_median": 0.07317337804175575,
+   "profile_invariants": {
+    "ort_node<=model_run<=wall_violations": 0,
+    "ort_node_checked": 2880,
+    "gpu_busy<=span<=wall_violations": 0,
+    "gpu_checked": 1800,
+    "kernel_assignment_failures": 3,
+    "ort_trace_assignment_failures": 0
+   },
+   "counter_overhead_median": {
+    "wasm-8t": 1.144,
+    "webgl": 1.003,
+    "webgpu": 1.014,
+    "webgpu-capture": 1.002,
+    "webgpu-native": 1.248
+   },
+   "timestamp_phase_perturbation_median": {
+    "webgl": 0.98,
+    "webgpu": 1.006,
+    "webgpu-capture": 1.022
+   },
+   "webgl_disjoint_timer_queries": 0,
+   "energy_windows_ok_frac": 0.9074074074074074,
+   "nvml_util_vs_busy": null,
+   "system_cpu_percent_median": 28.4
+  },
+  "table": [
+   {
+    "metric": "End-to-end latency",
+    "source": "performance.now() around session.run()",
+    "resolution": "5.0 \u00b5s",
+    "checks (this run)": "cross-origin isolated=True; smallest median 2.87 ms \u2192 resolution \u2264 0.17% of the smallest effect",
+    "verdict": "exact"
+   },
+   {
+    "metric": "Latency distribution (p50\u2013p99)",
+    "source": "200 runs \u00d7 3 fresh browser launches",
+    "resolution": "p99 from \u2265200 samples",
+    "checks (this run)": "between-launch CoV of medians: median 0.015; 100/270 runs show drift (|\u03c1|>0.3, p<0.01)",
+    "verdict": "exact"
+   },
+   {
+    "metric": "GPU kernel time (WebGPU)",
+    "source": "WebGPU timestamp queries (ORT profiling hook)",
+    "resolution": "ns (developer features on)",
+    "checks (this run)": "busy\u2264span\u2264wall violations 0/1800; phase wall \u00d71.006 vs counters phase (pass per dispatch)",
+    "verdict": "bounded"
+   },
+   {
+    "metric": "GPU draw time (WebGL)",
+    "source": "EXT_disjoint_timer_query_webgl2 per draw",
+    "resolution": "ns",
+    "checks (this run)": "disjoint (invalid) queries: 0",
+    "verdict": "bounded"
+   },
+   {
+    "metric": "CPU-side kernel time",
+    "source": "ORT C++ profiler (per-node Compute)",
+    "resolution": "\u00b5s",
+    "checks (this run)": "node\u2264model_run\u2264wall violations 0/2880; counter phase \u00d71.014 of latency p50",
+    "verdict": "bounded"
+   },
+   {
+    "metric": "Dispatch / submit / draw counts, bytes moved",
+    "source": "prototype wrappers on WebGPU/WebGL APIs",
+    "resolution": "exact counts",
+    "checks (this run)": "read from call arguments; identical across runs of a model",
+    "verdict": "exact"
+   },
+   {
+    "metric": "Logical GPU memory",
+    "source": "createBuffer/destroy & texImage2D accounting",
+    "resolution": "bytes",
+    "checks (this run)": "allocator-level view; driver padding not visible",
+    "verdict": "bounded"
+   },
+   {
+    "metric": "GPU energy per inference",
+    "source": "NVML total-energy counter (\u224896 ms updates)",
+    "resolution": "mJ",
+    "checks (this run)": "91% of windows \u2265 1 s; GPU board only, CPU energy not measurable",
+    "verdict": "bounded"
+   },
+   {
+    "metric": "GPU utilisation / clocks / power",
+    "source": "NVML (driver samples \u2248200 ms, power \u2248390 ms)",
+    "resolution": "coarse",
+    "checks (this run)": "device-wide (includes desktop compositor)",
+    "verdict": "proxy"
+   },
+   {
+    "metric": "CPU time per inference",
+    "source": "psutil cpu_times of this launch's Chrome processes",
+    "resolution": "\u224815 ms (Windows tick)",
+    "checks (this run)": "system-wide CPU median 28.4% during runs",
+    "verdict": "bounded"
+   },
+   {
+    "metric": "Correctness",
+    "source": "native onnxruntime (CPU EP) on identical input bytes",
+    "resolution": "fp32",
+    "checks (this run)": "deterministic reference",
+    "verdict": "exact"
+   },
+   {
+    "metric": "Main-thread input delay",
+    "source": "pointerdown event.timeStamp \u2192 handler start",
+    "resolution": "5 \u00b5s",
+    "checks (this run)": "real CDP input events; Event Timing API thresholded at 16 ms, so not used",
+    "verdict": "exact"
+   }
+  ]
+ },
+ "1_support_matrix": {
+  "files": [
+   "fig01_support_matrix.png",
+   "fig01_support_matrix.pdf"
+  ],
+  "support": {
+   "wasm-1t": {
+    "models_ok": 11,
+    "models_total": 11
+   },
+   "wasm-4t": {
+    "models_ok": 12,
+    "models_total": 12
+   },
+   "wasm-8t": {
+    "models_ok": 12,
+    "models_total": 12
+   },
+   "webgl": {
+    "models_ok": 7,
+    "models_total": 12
+   },
+   "webgpu": {
+    "models_ok": 12,
+    "models_total": 12
+   },
+   "webgpu-native": {
+    "models_ok": 12,
+    "models_total": 12
+   },
+   "webgpu-gpuio": {
+    "models_ok": 12,
+    "models_total": 12
+   },
+   "webgpu-capture": {
+    "models_ok": 12,
+    "models_total": 12
+   }
+  },
+  "variant_file_cells": [
+   [
+    "resnet50-v2",
+    "webgl"
+   ],
+   [
+    "deeplabv3p-resnet50-human",
+    "webgl"
+   ]
+  ]
+ },
+ "2a_speedup_vs_compute": {
+  "files": [
+   "fig02_speedup_vs_compute.png",
+   "fig02_speedup_vs_compute.pdf"
+  ],
+  "speedup": {
+   "wasm-1t": {
+    "speedup_min": 4.381615534360845,
+    "speedup_max": 37.821841638086624,
+    "speedup_median": 15.429779312176109,
+    "models_where_webgpu_slower": [],
+    "spearman_rho_vs_macs": 0.5818181818181819,
+    "spearman_p": 0.06041989621564838,
+    "loglog_fit": {
+     "slope": 0.3352906210507729,
+     "intercept": -2.0926247175270407,
+     "r2": 0.5304653682765774,
+     "p": 0.01102927278444381,
+     "slope_stderr": 0.10514907285356383
+    },
+    "crossover_gmacs": null
+   },
+   "wasm-4t": {
+    "speedup_min": 1.607799398143852,
+    "speedup_max": 11.077001913484484,
+    "speedup_median": 5.144029055929622,
+    "models_where_webgpu_slower": [],
+    "spearman_rho_vs_macs": 0.5104895104895105,
+    "spearman_p": 0.08991373630263919,
+    "loglog_fit": {
+     "slope": 0.2368956551097886,
+     "intercept": -1.63748135957678,
+     "r2": 0.40681075070316985,
+     "p": 0.025651220773479904,
+     "slope_stderr": 0.09046019517809271
+    },
+    "crossover_gmacs": null
+   },
+   "wasm-8t": {
+    "speedup_min": 1.3799012960683763,
+    "speedup_max": 7.97321036560915,
+    "speedup_median": 3.8517745166314277,
+    "models_where_webgpu_slower": [],
+    "spearman_rho_vs_macs": 0.44755244755244755,
+    "spearman_p": 0.1445863013033476,
+    "loglog_fit": {
+     "slope": 0.18848216283810193,
+     "intercept": -1.2812569922822479,
+     "r2": 0.32207085900939936,
+     "p": 0.05427906522671745,
+     "slope_stderr": 0.08647422772845936
+    },
+    "crossover_gmacs": null
+   },
+   "webgl": {
+    "speedup_min": 1.2472050085318314,
+    "speedup_max": 17.49192741287524,
+    "speedup_median": 3.0853945705321775,
+    "models_where_webgpu_slower": [],
+    "spearman_rho_vs_macs": 0.8928571428571429,
+    "spearman_p": 0.006807187408935393,
+    "loglog_fit": {
+     "slope": 0.5701934218472973,
+     "intercept": -4.8807002493441995,
+     "r2": 0.8090119132322594,
+     "p": 0.005829019620705396,
+     "slope_stderr": 0.12389759638260162
+    },
+    "crossover_gmacs": null
+   }
+  }
+ },
+ "2b_latency_ecdf": {
+  "files": [
+   "fig03_latency_ecdf.png",
+   "fig03_latency_ecdf.pdf"
+  ]
+ },
+ "2c_tail_ratio": {
+  "files": [
+   "fig04_tail_ratio.png",
+   "fig04_tail_ratio.pdf"
+  ],
+  "median_tail_ratio_by_config": {
+   "wasm-1t": 1.0904384312203657,
+   "wasm-4t": 1.2277961870288525,
+   "wasm-8t": 1.166699339849821,
+   "webgl": 1.059820143548233,
+   "webgpu": 1.1852679729940119,
+   "webgpu-capture": 1.1852663987273273,
+   "webgpu-gpuio": 1.1983086064660196,
+   "webgpu-native": 1.2470253139628729
+  },
+  "worst": [
+   {
+    "model": "mobilenetv2-7",
+    "backend": "webgpu-gpuio",
+    "tail_ratio": 2.1818304726419004
+   },
+   {
+    "model": "mobilebert_Opset17",
+    "backend": "webgpu",
+    "tail_ratio": 1.9322982111284805
+   },
+   {
+    "model": "mobilenetv2-7",
+    "backend": "webgpu-native",
+    "tail_ratio": 1.910425006151199
+   },
+   {
+    "model": "mobilebert_Opset17",
+    "backend": "webgpu-gpuio",
+    "tail_ratio": 1.8497384324761046
+   },
+   {
+    "model": "mobilenetv3_large_100_Opset17",
+    "backend": "webgpu-gpuio",
+    "tail_ratio": 1.838348039663609
+   }
+  ]
+ },
+ "2d_batch_scaling": {
+  "files": [
+   "fig05_batch_scaling.png",
+   "fig05_batch_scaling.pdf"
+  ],
+  "batch": {
+   "deeplabv3p-resnet50-human|wasm-4t": {
+    "per_sample_b1_ms": 567.3875000476837,
+    "per_sample_bmax_ms": 627.060624986887,
+    "bmax": 4,
+    "amortisation": 0.9048367533195835
+   },
+   "deeplabv3p-resnet50-human|wasm-8t": {
+    "per_sample_b1_ms": 402.26750004291534,
+    "per_sample_bmax_ms": 597.2487499713898,
+    "bmax": 4,
+    "amortisation": 0.6735342686982355
+   },
+   "deeplabv3p-resnet50-human|webgpu": {
+    "per_sample_b1_ms": 54.2849999666214,
+    "per_sample_bmax_ms": 58.53749996423721,
+    "bmax": 4,
+    "amortisation": 0.9273542600860333
+   },
+   "deeplabv3p-resnet50-human|webgpu-native": {
+    "per_sample_b1_ms": 54.72499990463257,
+    "per_sample_bmax_ms": 56.20125001668931,
+    "bmax": 4,
+    "amortisation": 0.97373278865473
+   },
+   "deeplabv3p-resnet50-human|webgpu-gpuio": {
+    "per_sample_b1_ms": 50.00750005245209,
+    "per_sample_bmax_ms": 51.9549999833107,
+    "bmax": 4,
+    "amortisation": 0.962515639852099
+   },
+   "resnet50-v2|wasm-4t": {
+    "per_sample_b1_ms": 61.47000002861023,
+    "per_sample_bmax_ms": 61.927343755960464,
+    "bmax": 16,
+    "amortisation": 0.9926148337775877
+   },
+   "resnet50-v2|wasm-8t": {
+    "per_sample_b1_ms": 52.74749994277954,
+    "per_sample_bmax_ms": 44.63859374821186,
+    "bmax": 16,
+    "amortisation": 1.1816568469944801
+   },
+   "resnet50-v2|webgpu": {
+    "per_sample_b1_ms": 8.799999952316284,
+    "per_sample_bmax_ms": 3.96875,
+    "bmax": 16,
+    "amortisation": 2.2173228226308748
+   },
+   "resnet50-v2|webgpu-native": {
+    "per_sample_b1_ms": 11.332499980926514,
+    "per_sample_bmax_ms": 4.146249994635582,
+    "bmax": 16,
+    "amortisation": 2.7331926428914084
+   },
+   "resnet50-v2|webgpu-gpuio": {
+    "per_sample_b1_ms": 8.772499918937683,
+    "per_sample_bmax_ms": 3.7412500008940697,
+    "bmax": 16,
+    "amortisation": 2.344804521708323
+   }
+  }
+ },
+ "3a_time_decomposition": {
+  "files": [
+   "fig06_time_decomposition.png",
+   "fig06_time_decomposition.pdf"
+  ],
+  "cpu_bound_models_webgpu": [
+   "mobilenetv3_large_100_Opset17",
+   "mobilenetv2-7",
+   "mobilebert_Opset17"
+  ],
+  "gpu_busy_frac_range": [
+   0.3075940959533999,
+   0.9721443498326184
+  ],
+  "cpu_over_gpu_by_model": {
+   "mobilenetv3_large_100_Opset17": 1.657,
+   "mobilenetv2-7": 1.085,
+   "alexnet_Opset16": 0.174,
+   "mobilebert_Opset17": 1.845,
+   "resnet50-v2": 0.393,
+   "adv_inception_v3_Opset17": 0.307,
+   "efficientnet_b5_Opset17": 0.346,
+   "bert_Opset17": 0.228,
+   "yolov2-coco-9": 0.099,
+   "gpt2lmhead_Opset18": 0.215,
+   "deeplabv3p-resnet50-human": 0.066,
+   "vit_large_patch16_224_in21k_Opset18": 0.081
+  },
+  "spearman_cpu_over_gpu_vs_macs": [
+   -0.7902097902097903,
+   0.0022231354099909177
+  ]
+ },
+ "3b_dispatch_overhead": {
+  "files": [
+   "fig07_dispatch_overhead.png",
+   "fig07_dispatch_overhead.pdf"
+  ],
+  "dispatch_cost": {
+   "webgpu": {
+    "us_per_dispatch": 18.809153747166345,
+    "r2": 0.991940719861927,
+    "intercept_ms": 0.6018585103252487,
+    "per_model_us_per_dispatch": {
+     "adv_inception_v3_Opset17": 27.05,
+     "alexnet_Opset16": 34.72,
+     "bert_Opset17": 21.5,
+     "deeplabv3p-resnet50-human": 27.23,
+     "efficientnet_b5_Opset17": 17.01,
+     "gpt2lmhead_Opset18": 21.35,
+     "mobilebert_Opset17": 19.54,
+     "mobilenetv2-7": 27.22,
+     "mobilenetv3_large_100_Opset17": 21.97,
+     "resnet50-v2": 24.03,
+     "vit_large_patch16_224_in21k_Opset18": 21.21,
+     "yolov2-coco-9": 38.01
+    }
+   },
+   "webgpu-native": {
+    "us_per_dispatch": 27.185782414172785,
+    "r2": 0.9927505965082583,
+    "intercept_ms": 0.9671004073983163,
+    "per_model_us_per_dispatch": {
+     "adv_inception_v3_Opset17": 34.78,
+     "alexnet_Opset16": 49.69,
+     "bert_Opset17": 32.64,
+     "deeplabv3p-resnet50-human": 34.28,
+     "efficientnet_b5_Opset17": 25.97,
+     "gpt2lmhead_Opset18": 31.35,
+     "mobilebert_Opset17": 28.34,
+     "mobilenetv2-7": 34.71,
+     "mobilenetv3_large_100_Opset17": 27.99,
+     "resnet50-v2": 32.09,
+     "vit_large_patch16_224_in21k_Opset18": 30.99,
+     "yolov2-coco-9": 42.79
+    }
+   },
+   "webgpu-capture": {
+    "us_per_dispatch": 0.0,
+    "r2": null,
+    "intercept_ms": 0.0,
+    "per_model_us_per_dispatch": {
+     "adv_inception_v3_Opset17": 0.0,
+     "alexnet_Opset16": 0.0,
+     "bert_Opset17": 0.0,
+     "deeplabv3p-resnet50-human": 0.0,
+     "efficientnet_b5_Opset17": 0.0,
+     "gpt2lmhead_Opset18": 0.0,
+     "mobilebert_Opset17": 0.0,
+     "mobilenetv2-7": 0.0,
+     "mobilenetv3_large_100_Opset17": 0.0,
+     "resnet50-v2": 0.0,
+     "vit_large_patch16_224_in21k_Opset18": 0.0,
+     "yolov2-coco-9": 0.0
+    }
+   }
+  }
+ },
+ "3c_op_speedup": {
+  "files": [
+   "fig08_op_speedup.png",
+   "fig08_op_speedup.pdf"
+  ],
+  "op_geomean_speedup": {
+   "LayerNormalization": 0.589,
+   "Mul": 1.165,
+   "Gemm": 2.85,
+   "ReduceMean": 3.029,
+   "Relu": 3.126,
+   "Add": 5.969,
+   "Resize": 6.023,
+   "Split": 7.439,
+   "Transpose": 7.57,
+   "Conv": 8.158,
+   "MatMul": 8.361,
+   "Softmax": 10.57
+  },
+  "retained_speedup": [
+   {
+    "model": "mobilenetv3_large_100_Opset17",
+    "kernel_speedup": 6.165,
+    "e2e_speedup": 1.536,
+    "retained": 0.249,
+    "macs": 216589760
+   },
+   {
+    "model": "mobilenetv2-7",
+    "kernel_speedup": 6.593,
+    "e2e_speedup": 2.078,
+    "retained": 0.315,
+    "macs": 429111936
+   },
+   {
+    "model": "alexnet_Opset16",
+    "kernel_speedup": 4.089,
+    "e2e_speedup": 2.559,
+    "retained": 0.626,
+    "macs": 714188480
+   },
+   {
+    "model": "mobilebert_Opset17",
+    "kernel_speedup": 6.733,
+    "e2e_speedup": 2.461,
+    "retained": 0.366,
+    "macs": 2667577344
+   },
+   {
+    "model": "resnet50-v2",
+    "kernel_speedup": 8.535,
+    "e2e_speedup": 5.895,
+    "retained": 0.691,
+    "macs": 4089184256
+   },
+   {
+    "model": "adv_inception_v3_Opset17",
+    "kernel_speedup": 6.482,
+    "e2e_speedup": 5.231,
+    "retained": 0.807,
+    "macs": 5713216096
+   },
+   {
+    "model": "efficientnet_b5_Opset17",
+    "kernel_speedup": 5.44,
+    "e2e_speedup": 5.323,
+    "retained": 0.978,
+    "macs": 9404374080
+   },
+   {
+    "model": "bert_Opset17",
+    "kernel_speedup": 5.171,
+    "e2e_speedup": 3.739,
+    "retained": 0.723,
+    "macs": 11174215680
+   },
+   {
+    "model": "yolov2-coco-9",
+    "kernel_speedup": 11.149,
+    "e2e_speedup": 7.973,
+    "retained": 0.715,
+    "macs": 14732084224
+   },
+   {
+    "model": "gpt2lmhead_Opset18",
+    "kernel_speedup": 4.621,
+    "e2e_speedup": 1.38,
+    "retained": 0.299,
+    "macs": 16114089984
+   },
+   {
+    "model": "deeplabv3p-resnet50-human",
+    "kernel_speedup": 9.869,
+    "e2e_speedup": 6.854,
+    "retained": 0.695,
+    "macs": 40798060544
+   },
+   {
+    "model": "vit_large_patch16_224_in21k_Opset18",
+    "kernel_speedup": 4.034,
+    "e2e_speedup": 3.965,
+    "retained": 0.983,
+    "macs": 61576055808
+   }
+  ]
+ },
+ "3d_runtime_variants": {
+  "files": [
+   "fig09_runtime_variants.png",
+   "fig09_runtime_variants.pdf"
+  ],
+  "variants_median_rel_latency": {
+   "webgpu-capture": 0.8826541168442599,
+   "webgpu-gpuio": 0.9634152212404582,
+   "webgpu-native": 1.1458936842531822
+  },
+  "capture_gain_by_model": {
+   "adv_inception_v3_Opset17": 0.06,
+   "alexnet_Opset16": 0.13,
+   "bert_Opset17": 0.035,
+   "deeplabv3p-resnet50-human": 0.61,
+   "efficientnet_b5_Opset17": 0.011,
+   "gpt2lmhead_Opset18": 0.605,
+   "mobilebert_Opset17": 0.232,
+   "mobilenetv2-7": 0.288,
+   "mobilenetv3_large_100_Opset17": 0.219,
+   "resnet50-v2": 0.105,
+   "vit_large_patch16_224_in21k_Opset18": 0.01,
+   "yolov2-coco-9": 0.088
+  },
+  "spearman_capture_rel_vs_macs": [
+   0.21678321678321683,
+   0.49855598552418845
+  ],
+  "native_over_jsep_dispatch_ratio": {
+   "mobilenetv3_large_100_Opset17": 1.4405594405594406,
+   "mobilenetv2-7": 1.8059701492537314,
+   "alexnet_Opset16": 1.3125,
+   "mobilebert_Opset17": 1.0,
+   "resnet50-v2": 1.4862385321100917,
+   "adv_inception_v3_Opset17": 1.7704918032786885,
+   "efficientnet_b5_Opset17": 1.3350604490500864,
+   "bert_Opset17": 1.0,
+   "yolov2-coco-9": 1.6216216216216217,
+   "gpt2lmhead_Opset18": 1.0,
+   "deeplabv3p-resnet50-human": 1.5416666666666667,
+   "vit_large_patch16_224_in21k_Opset18": 1.0017825311942958
+  }
+ },
+ "3e_readback": {
+  "files": [
+   "fig10_readback.png",
+   "fig10_readback.pdf"
+  ],
+  "all_over_primary": [
+   {
+    "model": "bert_Opset17",
+    "backend": "wasm-8t",
+    "all_over_primary": 1.126,
+    "lo": 1.109,
+    "hi": 1.141
+   },
+   {
+    "model": "bert_Opset17",
+    "backend": "webgpu",
+    "all_over_primary": 1.023,
+    "lo": 1.02,
+    "hi": 1.026
+   },
+   {
+    "model": "bert_Opset17",
+    "backend": "webgpu-native",
+    "all_over_primary": 1.132,
+    "lo": 1.12,
+    "hi": 1.143
+   },
+   {
+    "model": "gpt2lmhead_Opset18",
+    "backend": "wasm-8t",
+    "all_over_primary": 0.955,
+    "lo": 0.945,
+    "hi": 0.969
+   },
+   {
+    "model": "gpt2lmhead_Opset18",
+    "backend": "webgpu",
+    "all_over_primary": 2.388,
+    "lo": 2.381,
+    "hi": 2.396
+   },
+   {
+    "model": "gpt2lmhead_Opset18",
+    "backend": "webgpu-native",
+    "all_over_primary": 3.76,
+    "lo": 3.741,
+    "hi": 3.783
+   },
+   {
+    "model": "mobilebert_Opset17",
+    "backend": "wasm-8t",
+    "all_over_primary": 0.971,
+    "lo": 0.958,
+    "hi": 0.982
+   },
+   {
+    "model": "mobilebert_Opset17",
+    "backend": "webgpu",
+    "all_over_primary": 1.087,
+    "lo": 1.067,
+    "hi": 1.107
+   },
+   {
+    "model": "mobilebert_Opset17",
+    "backend": "webgpu-native",
+    "all_over_primary": 1.126,
+    "lo": 1.119,
+    "hi": 1.136
+   }
+  ],
+  "gpuio_readback_share": {
+   "mobilenetv3_large_100_Opset17": 0.59,
+   "mobilenetv2-7": 0.729,
+   "alexnet_Opset16": 0.925,
+   "mobilebert_Opset17": 0.233,
+   "resnet50-v2": 0.807,
+   "adv_inception_v3_Opset17": 0.826,
+   "efficientnet_b5_Opset17": 0.804,
+   "bert_Opset17": 0.895,
+   "yolov2-coco-9": 0.946,
+   "gpt2lmhead_Opset18": 0.902,
+   "deeplabv3p-resnet50-human": 0.963,
+   "vit_large_patch16_224_in21k_Opset18": 0.958
+  }
+ },
+ "3f_webgl_readback": {
+  "split": {
+   "resnet50-v2": {
+    "wall_counters_ms": 30.572,
+    "wall_gltime_ms": 29.545,
+    "gl_calls": 3129.0,
+    "gl_total_ms": 27.152,
+    "gl_readpixels_ms": 26.385,
+    "js_ms": 2.385,
+    "gpu_busy_ms": 23.487,
+    "drain_ms": 27.248,
+    "transfer_ms": 0.408,
+    "readpixels_bytes": 16000.0,
+    "m1_sum_le_wall_violations": 0.0,
+    "m2_split_over_m1_readpixels": 1.048,
+    "gltime_over_counters": 0.966,
+    "readsplit_over_counters": 0.983,
+    "cpuprof_over_counters": 0.972,
+    "js_ms_ci": [
+     2.35,
+     2.48
+    ],
+    "drain_ms_ci": [
+     26.98,
+     27.46
+    ],
+    "transfer_ms_ci": [
+     0.38,
+     0.43
+    ],
+    "prof_runs": 10.0,
+    "prof_sample_interval_us_median": 578.0,
+    "prof_other WebGL/Web API (native)_ms_per_run": 0.38,
+    "prof_ORT other JS_ms_per_run": 1.881,
+    "prof_readPixels (native)_ms_per_run": 27.434,
+    "prof_gc_ms_per_run": 0.315,
+    "prof_program_ms_per_run": 0.054,
+    "prof_harness JS_ms_per_run": 0.068,
+    "prof_sampled_ms_per_run": 30.119,
+    "prof_busy_ms_per_run": 30.119,
+    "prof_ORT decode (RGBA unpack)_ms_per_run": 0.0,
+    "prof_ORT encode (upload pack)_ms_per_run": 0.0,
+    "prof_psutil_renderer_cpu_ms_per_inference": 1.904,
+    "trace_window_found": 1.0,
+    "trace_runs": 10.0,
+    "trace_window_ms_per_run": 36.868,
+    "trace_gpu_process_webgl_slices_ms_per_run": 28.983,
+    "trace_gpu_process_webgl_slices_per_run": 5.4,
+    "trace_psutil_gpu_process_cpu_ms_per_inference": 27.423
+   },
+   "yolov2-coco-9": {
+    "wall_counters_ms": 254.707,
+    "wall_gltime_ms": 257.495,
+    "gl_calls": 1371.0,
+    "gl_total_ms": 252.82,
+    "gl_readpixels_ms": 252.332,
+    "js_ms": 4.165,
+    "gpu_busy_ms": 247.307,
+    "drain_ms": 249.345,
+    "transfer_ms": 0.903,
+    "readpixels_bytes": 1149200.0,
+    "m1_sum_le_wall_violations": 0.0,
+    "m2_split_over_m1_readpixels": 0.992,
+    "gltime_over_counters": 1.011,
+    "readsplit_over_counters": 0.998,
+    "cpuprof_over_counters": 0.999,
+    "js_ms_ci": [
+     4.05,
+     4.78
+    ],
+    "drain_ms_ci": [
+     248.67,
+     251.23
+    ],
+    "transfer_ms_ci": [
+     0.86,
+     0.98
+    ],
+    "prof_runs": 10.0,
+    "prof_sample_interval_us_median": 587.0,
+    "prof_other WebGL/Web API (native)_ms_per_run": 0.344,
+    "prof_ORT other JS_ms_per_run": 1.269,
+    "prof_readPixels (native)_ms_per_run": 247.915,
+    "prof_gc_ms_per_run": 0.273,
+    "prof_program_ms_per_run": 0.054,
+    "prof_harness JS_ms_per_run": 0.109,
+    "prof_sampled_ms_per_run": 252.544,
+    "prof_busy_ms_per_run": 252.544,
+    "prof_ORT decode (RGBA unpack)_ms_per_run": 2.667,
+    "prof_ORT encode (upload pack)_ms_per_run": 0.0,
+    "prof_psutil_renderer_cpu_ms_per_inference": 8.715,
+    "trace_window_found": 1.0,
+    "trace_runs": 10.0,
+    "trace_window_ms_per_run": 257.95,
+    "trace_gpu_process_webgl_slices_ms_per_run": 248.323,
+    "trace_gpu_process_webgl_slices_per_run": 3.3,
+    "trace_psutil_gpu_process_cpu_ms_per_inference": 253.141
+   },
+   "deeplabv3p-resnet50-human": {
+    "wall_counters_ms": 954.188,
+    "wall_gltime_ms": 949.967,
+    "gl_calls": 1877.0,
+    "gl_total_ms": 493.775,
+    "gl_readpixels_ms": 493.072,
+    "js_ms": 455.668,
+    "gpu_busy_ms": 455.896,
+    "drain_ms": 463.977,
+    "transfer_ms": 34.523,
+    "readpixels_bytes": 83886080.0,
+    "m1_sum_le_wall_violations": 0.0,
+    "m2_split_over_m1_readpixels": 1.011,
+    "gltime_over_counters": 0.996,
+    "readsplit_over_counters": 1.007,
+    "cpuprof_over_counters": 1.052,
+    "js_ms_ci": [
+     443.83,
+     471.38
+    ],
+    "drain_ms_ci": [
+     458.59,
+     467.48
+    ],
+    "transfer_ms_ci": [
+     34.32,
+     35.19
+    ],
+    "prof_runs": 10.0,
+    "prof_sample_interval_us_median": 577.0,
+    "prof_other WebGL/Web API (native)_ms_per_run": 0.45,
+    "prof_ORT other JS_ms_per_run": 16.605,
+    "prof_readPixels (native)_ms_per_run": 488.322,
+    "prof_gc_ms_per_run": 275.396,
+    "prof_program_ms_per_run": 0.0,
+    "prof_harness JS_ms_per_run": 0.059,
+    "prof_sampled_ms_per_run": 996.515,
+    "prof_busy_ms_per_run": 996.515,
+    "prof_ORT decode (RGBA unpack)_ms_per_run": 219.459,
+    "prof_ORT encode (upload pack)_ms_per_run": 0.0,
+    "prof_psutil_renderer_cpu_ms_per_inference": 697.079,
+    "trace_window_found": 1.0,
+    "trace_runs": 10.0,
+    "trace_window_ms_per_run": 1015.449,
+    "trace_gpu_process_webgl_slices_ms_per_run": 473.406,
+    "trace_gpu_process_webgl_slices_per_run": 14.9,
+    "trace_psutil_gpu_process_cpu_ms_per_inference": 491.52
+   }
+  },
+  "top_functions_ms_per_run": {
+   "t1|resnet50-v2": {
+    "readPixels []": 27.4,
+    "logInternal [ort.all-e_6jwZ8p.js]": 0.5,
+    "(garbage collector) []": 0.3,
+    "framebufferTexture2D []": 0.2,
+    "(anonymous) [ort.all-e_6jwZ8p.js]": 0.2,
+    "Guid3.create [ort.all-e_6jwZ8p.js]": 0.2,
+    "Guid3 [ort.all-e_6jwZ8p.js]": 0.1,
+    "useProgram []": 0.1,
+    "createTextureFromLayout [ort.all-e_6jwZ8p.js]": 0.1,
+    "executeProgram [ort.all-e_6jwZ8p.js]": 0.1,
+    "releaseTexture [ort.all-e_6jwZ8p.js]": 0.1,
+    "texSubImage2D []": 0.1
+   },
+   "t1|deeplabv3p-resnet50-human": {
+    "readPixels []": 493.3,
+    "(garbage collector) []": 278.9,
+    "decode [ort.all-e_6jwZ8p.js]": 220.7,
+    "(anonymous) [ort.all-e_6jwZ8p.js]": 14.1,
+    "logInternal [ort.all-e_6jwZ8p.js]": 0.3,
+    "Guid3.create [ort.all-e_6jwZ8p.js]": 0.2,
+    "allocate [ort.all-e_6jwZ8p.js]": 0.2,
+    "createIm2ColProgramMetadata [ort.all-e_6jwZ8p.js]": 0.1,
+    "bindTexture []": 0.1,
+    "createTextureFromLayout [ort.all-e_6jwZ8p.js]": 0.1,
+    "createTextureData [ort.all-e_6jwZ8p.js]": 0.1,
+    "event [ort.all-e_6jwZ8p.js]": 0.1
+   },
+   "t1|yolov2-coco-9": {
+    "readPixels []": 254.8,
+    "decode [ort.all-e_6jwZ8p.js]": 2.7,
+    "(anonymous) [ort.all-e_6jwZ8p.js]": 0.3,
+    "(garbage collector) []": 0.3,
+    "logInternal [ort.all-e_6jwZ8p.js]": 0.2,
+    "getAdjustedConvAttributes [ort.all-e_6jwZ8p.js]": 0.2,
+    "createTextureData [ort.all-e_6jwZ8p.js]": 0.1,
+    "activeTexture []": 0.1,
+    "texSubImage2D []": 0.1,
+    "useProgram []": 0.1,
+    "executeProgram [ort.all-e_6jwZ8p.js]": 0.1,
+    "bindTexture []": 0.1
+   },
+   "t2|resnet50-v2": {
+    "readPixels []": 27.6,
+    "logInternal [ort.all-e_6jwZ8p.js]": 0.5,
+    "Guid3.create [ort.all-e_6jwZ8p.js]": 0.3,
+    "createTextureData [ort.all-e_6jwZ8p.js]": 0.3,
+    "(garbage collector) []": 0.2,
+    "(anonymous) [ort.all-e_6jwZ8p.js]": 0.2,
+    "bindOutput [ort.all-e_6jwZ8p.js]": 0.1,
+    "texSubImage2D []": 0.1,
+    "bindFramebuffer []": 0.1,
+    "webglCpuPhases [index-DPSYtyLX.js]": 0.1,
+    "reshape [ort.all-e_6jwZ8p.js]": 0.1,
+    "run [ort.all-e_6jwZ8p.js]": 0.1
+   },
+   "t2|yolov2-coco-9": {
+    "readPixels []": 247.7,
+    "decode [ort.all-e_6jwZ8p.js]": 2.5,
+    "(anonymous) [ort.all-e_6jwZ8p.js]": 0.7,
+    "(garbage collector) []": 0.5,
+    "logInternal [ort.all-e_6jwZ8p.js]": 0.2,
+    "executeProgram [ort.all-e_6jwZ8p.js]": 0.1,
+    "texSubImage2D []": 0.1,
+    "bindTexture []": 0.1,
+    "Guid3.create [ort.all-e_6jwZ8p.js]": 0.1,
+    "createUnpackedConcatProgramMetadata [ort.all-e_6jwZ8p.js]": 0.1,
+    "webglCpuPhases [index-DPSYtyLX.js]": 0.1,
+    "createTextureLayoutFromShape [ort.all-e_6jwZ8p.js]": 0.1
+   },
+   "t2|deeplabv3p-resnet50-human": {
+    "readPixels []": 488.3,
+    "(garbage collector) []": 265.6,
+    "decode [ort.all-e_6jwZ8p.js]": 219.5,
+    "(anonymous) [ort.all-e_6jwZ8p.js]": 16.2,
+    "logInternal [ort.all-e_6jwZ8p.js]": 0.4,
+    "createTextureFromLayout [ort.all-e_6jwZ8p.js]": 0.3,
+    "texSubImage2D []": 0.2,
+    "calculateOutputShape [ort.all-e_6jwZ8p.js]": 0.2,
+    "bindOutput [ort.all-e_6jwZ8p.js]": 0.2,
+    "allocate [ort.all-e_6jwZ8p.js]": 0.2,
+    "uniform1i []": 0.1,
+    "_Tensor [ort.all-e_6jwZ8p.js]": 0.1
+   },
+   "t3|yolov2-coco-9": {
+    "readPixels []": 247.9,
+    "decode [ort.all-e_6jwZ8p.js]": 2.9,
+    "(anonymous) [ort.all-e_6jwZ8p.js]": 0.4,
+    "texSubImage2D []": 0.2,
+    "(garbage collector) []": 0.2,
+    "createTextureData [ort.all-e_6jwZ8p.js]": 0.2,
+    "logInternal [ort.all-e_6jwZ8p.js]": 0.1,
+    "setTextureData [ort.all-e_6jwZ8p.js]": 0.1,
+    "webglCpuPhases [index-DPSYtyLX.js]": 0.1,
+    "event [ort.all-e_6jwZ8p.js]": 0.1,
+    "executeProgram [ort.all-e_6jwZ8p.js]": 0.1,
+    "bindTexture []": 0.1
+   },
+   "t3|deeplabv3p-resnet50-human": {
+    "readPixels []": 486.0,
+    "(garbage collector) []": 275.4,
+    "decode [ort.all-e_6jwZ8p.js]": 217.7,
+    "(anonymous) [ort.all-e_6jwZ8p.js]": 14.6,
+    "logInternal [ort.all-e_6jwZ8p.js]": 0.6,
+    "allocate [ort.all-e_6jwZ8p.js]": 0.2,
+    "event [ort.all-e_6jwZ8p.js]": 0.2,
+    "(program) []": 0.2,
+    "texSubImage2D []": 0.2,
+    "getTextureData [ort.all-e_6jwZ8p.js]": 0.1,
+    "computeTexture [ort.all-e_6jwZ8p.js]": 0.1,
+    "createTextureFromLayout [ort.all-e_6jwZ8p.js]": 0.1
+   },
+   "t3|resnet50-v2": {
+    "readPixels []": 27.0,
+    "logInternal [ort.all-e_6jwZ8p.js]": 0.7,
+    "(garbage collector) []": 0.3,
+    "(anonymous) [ort.all-e_6jwZ8p.js]": 0.3,
+    "executeProgram [ort.all-e_6jwZ8p.js]": 0.2,
+    "createTextureData [ort.all-e_6jwZ8p.js]": 0.2,
+    "Guid3.create [ort.all-e_6jwZ8p.js]": 0.1,
+    "createTextureFromLayout [ort.all-e_6jwZ8p.js]": 0.1,
+    "timedDraw [index-DPSYtyLX.js]": 0.1,
+    "bindOutput [ort.all-e_6jwZ8p.js]": 0.1,
+    "texSubImage2D []": 0.1,
+    "webglCpuPhases [index-DPSYtyLX.js]": 0.1
+   }
+  },
+  "gpu_process_trace_ms_per_run": {
+   "t1|resnet50-v2": {
+    "ThreadControllerImpl::RunTask": 67.1,
+    "Scheduler::RunTask": 29.4,
+    "GpuChannel::ExecuteDeferredRequest": 29.4,
+    "WebGL": 29.3,
+    "CommandBuffer::Flush": 29.3,
+    "CommandBufferStub::OnAsyncFlush": 29.3,
+    "CommandBufferService:PutChanged": 29.3,
+    "CommandBufferStub::PerformWork": 0.4
+   },
+   "t1|deeplabv3p-resnet50-human": {
+    "ThreadControllerImpl::RunTask": 1521.2,
+    "Scheduler::RunTask": 479.2,
+    "GpuChannel::ExecuteDeferredRequest": 479.2,
+    "WebGL": 479.1,
+    "CommandBuffer::Flush": 479.1,
+    "CommandBufferStub::OnAsyncFlush": 479.0,
+    "CommandBufferService:PutChanged": 479.0,
+    "WinVSyncProvider::GetVSyncIntervalIfAvailable": 2.9
+   },
+   "t1|yolov2-coco-9": {
+    "ThreadControllerImpl::RunTask": 522.5,
+    "Scheduler::RunTask": 255.3,
+    "GpuChannel::ExecuteDeferredRequest": 255.3,
+    "WebGL": 255.3,
+    "CommandBuffer::Flush": 255.3,
+    "CommandBufferStub::OnAsyncFlush": 255.3,
+    "CommandBufferService:PutChanged": 255.2,
+    "WinVSyncProvider::GetVSyncIntervalIfAvailable": 1.2
+   },
+   "t2|resnet50-v2": {
+    "ThreadControllerImpl::RunTask": 66.5,
+    "Scheduler::RunTask": 29.1,
+    "GpuChannel::ExecuteDeferredRequest": 29.0,
+    "WebGL": 29.0,
+    "CommandBuffer::Flush": 29.0,
+    "CommandBufferStub::OnAsyncFlush": 29.0,
+    "CommandBufferService:PutChanged": 29.0,
+    "CommandBufferStub::PerformWork": 0.3
+   },
+   "t2|yolov2-coco-9": {
+    "ThreadControllerImpl::RunTask": 507.3,
+    "Scheduler::RunTask": 248.0,
+    "GpuChannel::ExecuteDeferredRequest": 248.0,
+    "WebGL": 247.9,
+    "CommandBuffer::Flush": 247.9,
+    "CommandBufferStub::OnAsyncFlush": 247.9,
+    "CommandBufferService:PutChanged": 247.9,
+    "WinVSyncProvider::GetVSyncIntervalIfAvailable": 0.5
+   },
+   "t2|deeplabv3p-resnet50-human": {
+    "ThreadControllerImpl::RunTask": 1485.7,
+    "Scheduler::RunTask": 473.6,
+    "GpuChannel::ExecuteDeferredRequest": 473.5,
+    "WebGL": 473.4,
+    "CommandBuffer::Flush": 473.4,
+    "CommandBufferStub::OnAsyncFlush": 473.4,
+    "CommandBufferService:PutChanged": 473.3,
+    "WinVSyncProvider::GetVSyncIntervalIfAvailable": 2.5
+   },
+   "t3|yolov2-coco-9": {
+    "ThreadControllerImpl::RunTask": 506.2,
+    "Scheduler::RunTask": 248.4,
+    "GpuChannel::ExecuteDeferredRequest": 248.4,
+    "WebGL": 248.3,
+    "CommandBuffer::Flush": 248.3,
+    "CommandBufferStub::OnAsyncFlush": 248.3,
+    "CommandBufferService:PutChanged": 248.3,
+    "WinVSyncProvider::GetVSyncIntervalIfAvailable": 0.5
+   },
+   "t3|deeplabv3p-resnet50-human": {
+    "ThreadControllerImpl::RunTask": 1491.2,
+    "Scheduler::RunTask": 471.4,
+    "GpuChannel::ExecuteDeferredRequest": 471.4,
+    "WebGL": 471.3,
+    "CommandBuffer::Flush": 471.3,
+    "CommandBufferStub::OnAsyncFlush": 471.2,
+    "CommandBufferService:PutChanged": 471.2,
+    "WinVSyncProvider::GetVSyncIntervalIfAvailable": 2.4
+   },
+   "t3|resnet50-v2": {
+    "ThreadControllerImpl::RunTask": 65.4,
+    "Scheduler::RunTask": 28.5,
+    "GpuChannel::ExecuteDeferredRequest": 28.5,
+    "WebGL": 28.5,
+    "CommandBuffer::Flush": 28.5,
+    "CommandBufferStub::OnAsyncFlush": 28.5,
+    "CommandBufferService:PutChanged": 28.5,
+    "CommandBufferStub::PerformWork": 0.3
+   }
+  },
+  "micro_ms": {
+   "webgl_sync_rgba": {
+    "1MiB": 0.27,
+    "4MiB": 0.81,
+    "16MiB": 3.84,
+    "20MiB": 5.44,
+    "80MiB": 19.98
+   },
+   "webgl_sync_red": {
+    "1MiB": 0.26,
+    "4MiB": 0.75,
+    "16MiB": 4.61,
+    "20MiB": 10.24,
+    "80MiB": 31.49
+   },
+   "webgl_pbo_rgba": {
+    "1MiB": 1.66,
+    "4MiB": 3.11,
+    "16MiB": 10.74,
+    "20MiB": 16.96,
+    "80MiB": 59.87
+   },
+   "webgpu_map": {
+    "1MiB": 0.41,
+    "4MiB": 1.11,
+    "16MiB": 4.24,
+    "20MiB": 5.1,
+    "80MiB": 19.72
+   },
+   "decode_ort_filter": {
+    "1MiB": 3.2,
+    "4MiB": 11.88,
+    "16MiB": 66.03,
+    "20MiB": 96.04,
+    "80MiB": 456.59
+   },
+   "decode_strided_loop": {
+    "1MiB": 0.15,
+    "4MiB": 0.31,
+    "16MiB": 2.04,
+    "20MiB": 2.13,
+    "80MiB": 7.99
+   }
+  },
+  "micro_env": {
+   "red_float_read": true,
+   "gl_error_sizes": []
+  },
+  "files": [
+   "fig22_webgl_readback.png",
+   "fig22_webgl_readback.pdf"
+  ]
+ },
+ "4a_startup_costs": {
+  "files": [
+   "fig11_startup_costs.png",
+   "fig11_startup_costs.pdf"
+  ],
+  "webgpu_first_run_overhead_ms": {
+   "adv_inception_v3_Opset17": 313.0,
+   "alexnet_Opset16": 184.8,
+   "bert_Opset17": 212.0,
+   "deeplabv3p-resnet50-human": 387.6,
+   "efficientnet_b5_Opset17": 350.6,
+   "gpt2lmhead_Opset18": 339.3,
+   "mobilebert_Opset17": 241.2,
+   "mobilenetv2-7": 225.7,
+   "mobilenetv3_large_100_Opset17": 314.2,
+   "resnet50-v2": 300.2,
+   "vit_large_patch16_224_in21k_Opset18": 640.6,
+   "yolov2-coco-9": 268.3
+  },
+  "webgpu_first_run_over_steady": {
+   "adv_inception_v3_Opset17": 25.4,
+   "alexnet_Opset16": 35.7,
+   "bert_Opset17": 7.9,
+   "deeplabv3p-resnet50-human": 8.1,
+   "efficientnet_b5_Opset17": 12.3,
+   "gpt2lmhead_Opset18": 4.1,
+   "mobilebert_Opset17": 14.7,
+   "mobilenetv2-7": 55.4,
+   "mobilenetv3_large_100_Opset17": 71.4,
+   "resnet50-v2": 36.4,
+   "vit_large_patch16_224_in21k_Opset18": 5.2,
+   "yolov2-coco-9": 16.8
+  },
+  "wasm8t_first_run_over_steady": {
+   "adv_inception_v3_Opset17": 1.66,
+   "alexnet_Opset16": 2.37,
+   "bert_Opset17": 1.31,
+   "deeplabv3p-resnet50-human": 1.23,
+   "efficientnet_b5_Opset17": 1.47,
+   "gpt2lmhead_Opset18": 1.39,
+   "mobilebert_Opset17": 1.81,
+   "mobilenetv2-7": 4.38,
+   "mobilenetv3_large_100_Opset17": 4.92,
+   "resnet50-v2": 1.77,
+   "vit_large_patch16_224_in21k_Opset18": 1.08,
+   "yolov2-coco-9": 1.33
+  }
+ },
+ "4b_break_even": {
+  "files": [
+   "fig12_break_even.png",
+   "fig12_break_even.pdf"
+  ],
+  "break_even_n": {
+   "mobilenetv3_large_100_Opset17": 150.4,
+   "mobilenetv2-7": 67.3,
+   "alexnet_Opset16": 23.6,
+   "mobilebert_Opset17": 10.7,
+   "resnet50-v2": 8.1,
+   "adv_inception_v3_Opset17": 7.1,
+   "efficientnet_b5_Opset17": 3.2,
+   "bert_Opset17": 1.5,
+   "yolov2-coco-9": 3.0,
+   "gpt2lmhead_Opset18": 8.1,
+   "deeplabv3p-resnet50-human": 1.2,
+   "vit_large_patch16_224_in21k_Opset18": 0.6
+  }
+ },
+ "4c_shape_penalty": {
+  "files": [
+   "fig13_shape_penalty.png",
+   "fig13_shape_penalty.pdf"
+  ],
+  "first_seen_x": [
+   {
+    "model": "deeplabv3p-resnet50-human",
+    "backend": "wasm-8t",
+    "shape_value": 2.0,
+    "first_seen_x": 1.01,
+    "revisit_x": 0.994
+   },
+   {
+    "model": "deeplabv3p-resnet50-human",
+    "backend": "wasm-8t",
+    "shape_value": 4.0,
+    "first_seen_x": 1.015,
+    "revisit_x": 1.003
+   },
+   {
+    "model": "deeplabv3p-resnet50-human",
+    "backend": "webgpu",
+    "shape_value": 2.0,
+    "first_seen_x": 1.563,
+    "revisit_x": 1.088
+   },
+   {
+    "model": "deeplabv3p-resnet50-human",
+    "backend": "webgpu",
+    "shape_value": 4.0,
+    "first_seen_x": 1.429,
+    "revisit_x": 0.965
+   },
+   {
+    "model": "deeplabv3p-resnet50-human",
+    "backend": "webgpu-native",
+    "shape_value": 2.0,
+    "first_seen_x": 1.266,
+    "revisit_x": 1.047
+   },
+   {
+    "model": "deeplabv3p-resnet50-human",
+    "backend": "webgpu-native",
+    "shape_value": 4.0,
+    "first_seen_x": 1.352,
+    "revisit_x": 1.004
+   },
+   {
+    "model": "resnet50-v2",
+    "backend": "wasm-8t",
+    "shape_value": 2.0,
+    "first_seen_x": 0.988,
+    "revisit_x": 1.025
+   },
+   {
+    "model": "resnet50-v2",
+    "backend": "wasm-8t",
+    "shape_value": 4.0,
+    "first_seen_x": 1.027,
+    "revisit_x": 1.043
+   },
+   {
+    "model": "resnet50-v2",
+    "backend": "wasm-8t",
+    "shape_value": 8.0,
+    "first_seen_x": 0.965,
+    "revisit_x": 0.965
+   },
+   {
+    "model": "resnet50-v2",
+    "backend": "webgpu",
+    "shape_value": 2.0,
+    "first_seen_x": 1.105,
+    "revisit_x": 0.997
+   },
+   {
+    "model": "resnet50-v2",
+    "backend": "webgpu",
+    "shape_value": 4.0,
+    "first_seen_x": 1.798,
+    "revisit_x": 1.001
+   },
+   {
+    "model": "resnet50-v2",
+    "backend": "webgpu",
+    "shape_value": 8.0,
+    "first_seen_x": 1.272,
+    "revisit_x": 1.004
+   },
+   {
+    "model": "resnet50-v2",
+    "backend": "webgpu-native",
+    "shape_value": 2.0,
+    "first_seen_x": 1.031,
+    "revisit_x": 0.961
+   },
+   {
+    "model": "resnet50-v2",
+    "backend": "webgpu-native",
+    "shape_value": 4.0,
+    "first_seen_x": 1.652,
+    "revisit_x": 0.982
+   },
+   {
+    "model": "resnet50-v2",
+    "backend": "webgpu-native",
+    "shape_value": 8.0,
+    "first_seen_x": 1.129,
+    "revisit_x": 1.041
+   }
+  ]
+ },
+ "5a_idle_penalty": {
+  "files": [
+   "fig14_idle_penalty.png",
+   "fig14_idle_penalty.pdf"
+  ],
+  "service_over_closed_loop_at_lowest_rate": {
+   "bert_Opset17|wasm-8t": 0.975,
+   "bert_Opset17|webgpu": 1.102,
+   "mobilebert_Opset17|wasm-8t": 1.107,
+   "mobilebert_Opset17|webgpu": 3.629,
+   "mobilenetv2-7|wasm-8t": 1.13,
+   "mobilenetv2-7|webgl": 9.906,
+   "mobilenetv2-7|webgpu": 5.968,
+   "resnet50-v2|wasm-8t": 1.097,
+   "resnet50-v2|webgl": 1.091,
+   "resnet50-v2|webgpu": 7.686
+  },
+  "sm_clock_by_rate_webgpu": {
+   "1": 454.0,
+   "5": 656.0,
+   "20": 1578.0,
+   "50": 1920.0,
+   "100": 1912.0,
+   "200": 1912.0
+  }
+ },
+ "5b_goodput": {
+  "files": [
+   "fig15_goodput.png",
+   "fig15_goodput.pdf"
+  ],
+  "max_sustainable_rate_rps": {
+   "bert_Opset17|wasm-8t": null,
+   "bert_Opset17|webgpu": null,
+   "mobilebert_Opset17|wasm-8t": 5.0,
+   "mobilebert_Opset17|webgpu": 20.0,
+   "mobilenetv2-7|wasm-8t": 100.0,
+   "mobilenetv2-7|webgl": 100.0,
+   "mobilenetv2-7|webgpu": 100.0,
+   "resnet50-v2|wasm-8t": 1.0,
+   "resnet50-v2|webgl": 5.0,
+   "resnet50-v2|webgpu": 50.0
+  }
+ },
+ "5c_cpu_cost": {
+  "files": [
+   "fig16_cpu_cost.png",
+   "fig16_cpu_cost.pdf"
+  ],
+  "cpu_ms_per_inference": {
+   "adv_inception_v3_Opset17|wasm-1t": 268.29,
+   "adv_inception_v3_Opset17|wasm-4t": 359.53,
+   "adv_inception_v3_Opset17|wasm-8t": 521.29,
+   "adv_inception_v3_Opset17|webgl": 73.88,
+   "adv_inception_v3_Opset17|webgpu": 7.76,
+   "adv_inception_v3_Opset17|webgpu-capture": 4.57,
+   "adv_inception_v3_Opset17|webgpu-gpuio": 7.57,
+   "adv_inception_v3_Opset17|webgpu-native": 13.07,
+   "alexnet_Opset16|wasm-1t": 42.32,
+   "alexnet_Opset16|wasm-4t": 61.15,
+   "alexnet_Opset16|wasm-8t": 108.33,
+   "alexnet_Opset16|webgl": 9.48,
+   "alexnet_Opset16|webgpu": 3.1,
+   "alexnet_Opset16|webgpu-capture": 1.67,
+   "alexnet_Opset16|webgpu-gpuio": 1.84,
+   "alexnet_Opset16|webgpu-native": 4.15,
+   "bert_Opset17|wasm-1t": 494.97,
+   "bert_Opset17|wasm-4t": 625.16,
+   "bert_Opset17|wasm-8t": 916.38,
+   "bert_Opset17|webgpu": 12.6,
+   "bert_Opset17|webgpu-capture": 6.7,
+   "bert_Opset17|webgpu-gpuio": 10.84,
+   "bert_Opset17|webgpu-native": 12.53,
+   "deeplabv3p-resnet50-human|wasm-1t": 2007.38,
+   "deeplabv3p-resnet50-human|wasm-4t": 2302.76,
+   "deeplabv3p-resnet50-human|wasm-8t": 3119.74,
+   "deeplabv3p-resnet50-human|webgl": 1188.6,
+   "deeplabv3p-resnet50-human|webgpu": 22.41,
+   "deeplabv3p-resnet50-human|webgpu-capture": 11.39,
+   "deeplabv3p-resnet50-human|webgpu-gpuio": 16.88,
+   "deeplabv3p-resnet50-human|webgpu-native": 26.19,
+   "efficientnet_b5_Opset17|wasm-1t": 781.25,
+   "efficientnet_b5_Opset17|wasm-4t": 972.75,
+   "efficientnet_b5_Opset17|wasm-8t": 1295.78,
+   "efficientnet_b5_Opset17|webgl": 93.36,
+   "efficientnet_b5_Opset17|webgpu": 17.2,
+   "efficientnet_b5_Opset17|webgpu-capture": 7.14,
+   "efficientnet_b5_Opset17|webgpu-gpuio": 19.59,
+   "efficientnet_b5_Opset17|webgpu-native": 32.69,
+   "gpt2lmhead_Opset18|wasm-1t": 704.07,
+   "gpt2lmhead_Opset18|wasm-4t": 866.76,
+   "gpt2lmhead_Opset18|wasm-8t": 1197.86,
+   "gpt2lmhead_Opset18|webgpu": 37.37,
+   "gpt2lmhead_Opset18|webgpu-capture": 14.43,
+   "gpt2lmhead_Opset18|webgpu-gpuio": 21.0,
+   "gpt2lmhead_Opset18|webgpu-native": 48.76,
+   "mobilebert_Opset17|wasm-1t": 127.51,
+   "mobilebert_Opset17|wasm-4t": 204.07,
+   "mobilebert_Opset17|wasm-8t": 339.74,
+   "mobilebert_Opset17|webgpu": 34.26,
+   "mobilebert_Opset17|webgpu-capture": 14.33,
+   "mobilebert_Opset17|webgpu-gpuio": 31.9,
+   "mobilebert_Opset17|webgpu-native": 46.86,
+   "mobilenetv2-7|wasm-1t": 30.37,
+   "mobilenetv2-7|wasm-4t": 50.94,
+   "mobilenetv2-7|wasm-8t": 66.57,
+   "mobilenetv2-7|webgl": 6.52,
+   "mobilenetv2-7|webgpu": 4.5,
+   "mobilenetv2-7|webgpu-capture": 2.23,
+   "mobilenetv2-7|webgpu-gpuio": 4.68,
+   "mobilenetv2-7|webgpu-native": 9.19,
+   "mobilenetv3_large_100_Opset17|wasm-1t": 21.66,
+   "mobilenetv3_large_100_Opset17|wasm-4t": 32.91,
+   "mobilenetv3_large_100_Opset17|wasm-8t": 56.11,
+   "mobilenetv3_large_100_Opset17|webgpu": 5.61,
+   "mobilenetv3_large_100_Opset17|webgpu-capture": 2.38,
+   "mobilenetv3_large_100_Opset17|webgpu-gpuio": 6.01,
+   "mobilenetv3_large_100_Opset17|webgpu-native": 10.45,
+   "resnet50-v2|wasm-1t": 208.15,
+   "resnet50-v2|wasm-4t": 265.93,
+   "resnet50-v2|wasm-8t": 394.81,
+   "resnet50-v2|webgl": 29.33,
+   "resnet50-v2|webgpu": 5.08,
+   "resnet50-v2|webgpu-capture": 2.19,
+   "resnet50-v2|webgpu-gpuio": 5.71,
+   "resnet50-v2|webgpu-native": 8.69,
+   "vit_large_patch16_224_in21k_Opset18|wasm-4t": 3255.42,
+   "vit_large_patch16_224_in21k_Opset18|wasm-8t": 4679.88,
+   "vit_large_patch16_224_in21k_Opset18|webgpu": 26.22,
+   "vit_large_patch16_224_in21k_Opset18|webgpu-capture": 15.0,
+   "vit_large_patch16_224_in21k_Opset18|webgpu-gpuio": 25.6,
+   "vit_large_patch16_224_in21k_Opset18|webgpu-native": 26.54,
+   "yolov2-coco-9|wasm-1t": 667.71,
+   "yolov2-coco-9|wasm-4t": 762.72,
+   "yolov2-coco-9|wasm-8t": 1083.31,
+   "yolov2-coco-9|webgl": 261.86,
+   "yolov2-coco-9|webgpu": 4.3,
+   "yolov2-coco-9|webgpu-capture": 1.77,
+   "yolov2-coco-9|webgpu-gpuio": 3.76,
+   "yolov2-coco-9|webgpu-native": 6.66
+  },
+  "renderer_cores_busy": {
+   "adv_inception_v3_Opset17|wasm-1t": 1.01,
+   "adv_inception_v3_Opset17|wasm-4t": 4.0,
+   "adv_inception_v3_Opset17|wasm-8t": 7.98,
+   "adv_inception_v3_Opset17|webgl": 0.05,
+   "adv_inception_v3_Opset17|webgpu": 0.4,
+   "adv_inception_v3_Opset17|webgpu-capture": 0.25,
+   "adv_inception_v3_Opset17|webgpu-gpuio": 0.37,
+   "adv_inception_v3_Opset17|webgpu-native": 0.57,
+   "alexnet_Opset16|wasm-1t": 1.04,
+   "alexnet_Opset16|wasm-4t": 4.07,
+   "alexnet_Opset16|wasm-8t": 7.98,
+   "alexnet_Opset16|webgl": 0.09,
+   "alexnet_Opset16|webgpu": 0.44,
+   "alexnet_Opset16|webgpu-capture": 0.24,
+   "alexnet_Opset16|webgpu-gpuio": 0.27,
+   "alexnet_Opset16|webgpu-native": 0.54,
+   "bert_Opset17|wasm-1t": 1.0,
+   "bert_Opset17|wasm-4t": 3.99,
+   "bert_Opset17|wasm-8t": 7.94,
+   "bert_Opset17|webgpu": 0.21,
+   "bert_Opset17|webgpu-capture": 0.1,
+   "bert_Opset17|webgpu-gpuio": 0.19,
+   "bert_Opset17|webgpu-native": 0.53,
+   "deeplabv3p-resnet50-human|wasm-1t": 1.0,
+   "deeplabv3p-resnet50-human|wasm-4t": 3.97,
+   "deeplabv3p-resnet50-human|wasm-8t": 7.94,
+   "deeplabv3p-resnet50-human|webgl": 0.73,
+   "deeplabv3p-resnet50-human|webgpu": 0.27,
+   "deeplabv3p-resnet50-human|webgpu-capture": 0.36,
+   "deeplabv3p-resnet50-human|webgpu-gpuio": 0.21,
+   "deeplabv3p-resnet50-human|webgpu-native": 0.32,
+   "efficientnet_b5_Opset17|wasm-1t": 1.01,
+   "efficientnet_b5_Opset17|wasm-4t": 3.97,
+   "efficientnet_b5_Opset17|wasm-8t": 7.97,
+   "efficientnet_b5_Opset17|webgl": 0.07,
+   "efficientnet_b5_Opset17|webgpu": 0.34,
+   "efficientnet_b5_Opset17|webgpu-capture": 0.07,
+   "efficientnet_b5_Opset17|webgpu-gpuio": 0.37,
+   "efficientnet_b5_Opset17|webgpu-native": 0.56,
+   "gpt2lmhead_Opset18|wasm-1t": 1.01,
+   "gpt2lmhead_Opset18|wasm-4t": 3.98,
+   "gpt2lmhead_Opset18|wasm-8t": 7.98,
+   "gpt2lmhead_Opset18|webgpu": 0.2,
+   "gpt2lmhead_Opset18|webgpu-capture": 0.18,
+   "gpt2lmhead_Opset18|webgpu-gpuio": 0.31,
+   "gpt2lmhead_Opset18|webgpu-native": 0.27,
+   "mobilebert_Opset17|wasm-1t": 1.01,
+   "mobilebert_Opset17|wasm-4t": 4.03,
+   "mobilebert_Opset17|wasm-8t": 8.05,
+   "mobilebert_Opset17|webgpu": 1.09,
+   "mobilebert_Opset17|webgpu-capture": 0.43,
+   "mobilebert_Opset17|webgpu-gpuio": 1.23,
+   "mobilebert_Opset17|webgpu-native": 1.03,
+   "mobilenetv2-7|wasm-1t": 1.03,
+   "mobilenetv2-7|wasm-4t": 4.19,
+   "mobilenetv2-7|wasm-8t": 8.32,
+   "mobilenetv2-7|webgl": 0.4,
+   "mobilenetv2-7|webgpu": 0.74,
+   "mobilenetv2-7|webgpu-capture": 0.43,
+   "mobilenetv2-7|webgpu-gpuio": 0.82,
+   "mobilenetv2-7|webgpu-native": 1.02,
+   "mobilenetv3_large_100_Opset17|wasm-1t": 1.09,
+   "mobilenetv3_large_100_Opset17|wasm-4t": 4.33,
+   "mobilenetv3_large_100_Opset17|wasm-8t": 8.42,
+   "mobilenetv3_large_100_Opset17|webgpu": 0.82,
+   "mobilenetv3_large_100_Opset17|webgpu-capture": 0.27,
+   "mobilenetv3_large_100_Opset17|webgpu-gpuio": 0.77,
+   "mobilenetv3_large_100_Opset17|webgpu-native": 0.93,
+   "resnet50-v2|wasm-1t": 1.01,
+   "resnet50-v2|wasm-4t": 3.98,
+   "resnet50-v2|wasm-8t": 7.97,
+   "resnet50-v2|webgl": 0.07,
+   "resnet50-v2|webgpu": 0.4,
+   "resnet50-v2|webgpu-capture": 0.16,
+   "resnet50-v2|webgpu-gpuio": 0.42,
+   "resnet50-v2|webgpu-native": 0.54,
+   "vit_large_patch16_224_in21k_Opset18|wasm-4t": 3.98,
+   "vit_large_patch16_224_in21k_Opset18|wasm-8t": 7.95,
+   "vit_large_patch16_224_in21k_Opset18|webgpu": 0.08,
+   "vit_large_patch16_224_in21k_Opset18|webgpu-capture": 0.03,
+   "vit_large_patch16_224_in21k_Opset18|webgpu-gpuio": 0.08,
+   "vit_large_patch16_224_in21k_Opset18|webgpu-native": 0.3,
+   "yolov2-coco-9|wasm-1t": 1.01,
+   "yolov2-coco-9|wasm-4t": 3.98,
+   "yolov2-coco-9|wasm-8t": 7.96,
+   "yolov2-coco-9|webgl": 0.03,
+   "yolov2-coco-9|webgpu": 0.18,
+   "yolov2-coco-9|webgpu-capture": 0.06,
+   "yolov2-coco-9|webgpu-gpuio": 0.13,
+   "yolov2-coco-9|webgpu-native": 0.19
+  }
+ },
+ "5d_energy": {
+  "files": [
+   "fig17_energy.png",
+   "fig17_energy.pdf"
+  ],
+  "energy_per_inference_mj": {
+   "adv_inception_v3_Opset17|webgl": 8142.4,
+   "adv_inception_v3_Opset17|webgpu": 915.6,
+   "adv_inception_v3_Opset17|webgpu-capture": 915.5,
+   "adv_inception_v3_Opset17|webgpu-gpuio": 888.5,
+   "adv_inception_v3_Opset17|webgpu-native": 1133.3,
+   "alexnet_Opset16|webgl": 1059.1,
+   "alexnet_Opset16|webgpu": 361.8,
+   "alexnet_Opset16|webgpu-capture": 346.6,
+   "alexnet_Opset16|webgpu-gpuio": 358.5,
+   "alexnet_Opset16|webgpu-native": 387.1,
+   "bert_Opset17|webgpu": 3350.4,
+   "bert_Opset17|webgpu-capture": 3229.4,
+   "bert_Opset17|webgpu-gpuio": 3142.2,
+   "bert_Opset17|webgpu-native": 1409.8,
+   "deeplabv3p-resnet50-human|webgl": 71200.4,
+   "deeplabv3p-resnet50-human|webgpu": 5903.1,
+   "deeplabv3p-resnet50-human|webgpu-capture": 2178.8,
+   "deeplabv3p-resnet50-human|webgpu-gpuio": 5874.2,
+   "deeplabv3p-resnet50-human|webgpu-native": 6045.6,
+   "efficientnet_b5_Opset17|webgl": 11309.0,
+   "efficientnet_b5_Opset17|webgpu": 3202.4,
+   "efficientnet_b5_Opset17|webgpu-capture": 3208.4,
+   "efficientnet_b5_Opset17|webgpu-gpuio": 3209.5,
+   "efficientnet_b5_Opset17|webgpu-native": 3448.8,
+   "gpt2lmhead_Opset18|webgpu": 5637.1,
+   "gpt2lmhead_Opset18|webgpu-capture": 4600.5,
+   "gpt2lmhead_Opset18|webgpu-gpuio": 4471.7,
+   "gpt2lmhead_Opset18|webgpu-native": 2891.9,
+   "mobilebert_Opset17|webgpu": 1068.5,
+   "mobilebert_Opset17|webgpu-capture": 940.6,
+   "mobilebert_Opset17|webgpu-gpuio": 958.4,
+   "mobilebert_Opset17|webgpu-native": 1147.8,
+   "mobilenetv2-7|webgl": 453.5,
+   "mobilenetv2-7|webgpu": 191.1,
+   "mobilenetv2-7|webgpu-capture": 166.3,
+   "mobilenetv2-7|webgpu-gpuio": 194.9,
+   "mobilenetv2-7|webgpu-native": 239.4,
+   "mobilenetv3_large_100_Opset17|webgpu": 196.2,
+   "mobilenetv3_large_100_Opset17|webgpu-capture": 179.9,
+   "mobilenetv3_large_100_Opset17|webgpu-gpuio": 205.2,
+   "mobilenetv3_large_100_Opset17|webgpu-native": 279.4,
+   "resnet50-v2|webgl": 3676.9,
+   "resnet50-v2|webgpu": 643.1,
+   "resnet50-v2|webgpu-capture": 646.6,
+   "resnet50-v2|webgpu-gpuio": 650.9,
+   "resnet50-v2|webgpu-native": 822.7,
+   "vit_large_patch16_224_in21k_Opset18|webgpu": 19353.6,
+   "vit_large_patch16_224_in21k_Opset18|webgpu-capture": 19184.5,
+   "vit_large_patch16_224_in21k_Opset18|webgpu-gpuio": 19272.6,
+   "vit_large_patch16_224_in21k_Opset18|webgpu-native": 7106.1,
+   "yolov2-coco-9|webgl": 31805.7,
+   "yolov2-coco-9|webgpu": 2089.5,
+   "yolov2-coco-9|webgpu-capture": 2010.6,
+   "yolov2-coco-9|webgpu-gpuio": 2052.9,
+   "yolov2-coco-9|webgpu-native": 2902.7
+  },
+  "mean_power_w": {
+   "adv_inception_v3_Opset17|wasm-1t": 10.6,
+   "adv_inception_v3_Opset17|wasm-4t": 12.0,
+   "adv_inception_v3_Opset17|wasm-8t": 12.6,
+   "adv_inception_v3_Opset17|webgl": 117.1,
+   "adv_inception_v3_Opset17|webgpu": 72.3,
+   "adv_inception_v3_Opset17|webgpu-capture": 76.9,
+   "adv_inception_v3_Opset17|webgpu-gpuio": 72.3,
+   "adv_inception_v3_Opset17|webgpu-native": 75.1,
+   "alexnet_Opset16|wasm-1t": 13.6,
+   "alexnet_Opset16|wasm-4t": 21.0,
+   "alexnet_Opset16|wasm-8t": 20.0,
+   "alexnet_Opset16|webgl": 122.1,
+   "alexnet_Opset16|webgpu": 68.3,
+   "alexnet_Opset16|webgpu-capture": 78.5,
+   "alexnet_Opset16|webgpu-gpuio": 73.3,
+   "alexnet_Opset16|webgpu-native": 64.1,
+   "bert_Opset17|wasm-1t": 10.2,
+   "bert_Opset17|wasm-4t": 11.1,
+   "bert_Opset17|wasm-8t": 11.1,
+   "bert_Opset17|webgpu": 106.9,
+   "bert_Opset17|webgpu-capture": 106.8,
+   "bert_Opset17|webgpu-gpuio": 104.3,
+   "bert_Opset17|webgpu-native": 100.3,
+   "deeplabv3p-resnet50-human|wasm-1t": 10.1,
+   "deeplabv3p-resnet50-human|wasm-4t": 10.5,
+   "deeplabv3p-resnet50-human|wasm-8t": 10.3,
+   "deeplabv3p-resnet50-human|webgl": 74.6,
+   "deeplabv3p-resnet50-human|webgpu": 107.9,
+   "deeplabv3p-resnet50-human|webgpu-capture": 98.6,
+   "deeplabv3p-resnet50-human|webgpu-gpuio": 117.1,
+   "deeplabv3p-resnet50-human|webgpu-native": 108.3,
+   "efficientnet_b5_Opset17|wasm-1t": 10.5,
+   "efficientnet_b5_Opset17|wasm-4t": 10.7,
+   "efficientnet_b5_Opset17|wasm-8t": 11.0,
+   "efficientnet_b5_Opset17|webgl": 133.6,
+   "efficientnet_b5_Opset17|webgpu": 102.5,
+   "efficientnet_b5_Opset17|webgpu-capture": 102.4,
+   "efficientnet_b5_Opset17|webgpu-gpuio": 104.4,
+   "efficientnet_b5_Opset17|webgpu-native": 101.4,
+   "gpt2lmhead_Opset18|wasm-1t": 10.6,
+   "gpt2lmhead_Opset18|wasm-4t": 10.8,
+   "gpt2lmhead_Opset18|wasm-8t": 11.0,
+   "gpt2lmhead_Opset18|webgpu": 50.7,
+   "gpt2lmhead_Opset18|webgpu-capture": 103.3,
+   "gpt2lmhead_Opset18|webgpu-gpuio": 104.1,
+   "gpt2lmhead_Opset18|webgpu-native": 25.6,
+   "mobilebert_Opset17|wasm-1t": 11.4,
+   "mobilebert_Opset17|wasm-4t": 13.2,
+   "mobilebert_Opset17|wasm-8t": 13.6,
+   "mobilebert_Opset17|webgpu": 58.7,
+   "mobilebert_Opset17|webgpu-capture": 69.2,
+   "mobilebert_Opset17|webgpu-gpuio": 63.2,
+   "mobilebert_Opset17|webgpu-native": 41.3,
+   "mobilenetv2-7|wasm-1t": 17.1,
+   "mobilenetv2-7|wasm-4t": 24.8,
+   "mobilenetv2-7|wasm-8t": 27.6,
+   "mobilenetv2-7|webgl": 87.6,
+   "mobilenetv2-7|webgpu": 44.1,
+   "mobilenetv2-7|webgpu-capture": 53.8,
+   "mobilenetv2-7|webgpu-gpuio": 49.6,
+   "mobilenetv2-7|webgpu-native": 37.3,
+   "mobilenetv3_large_100_Opset17|wasm-1t": 21.5,
+   "mobilenetv3_large_100_Opset17|wasm-4t": 30.7,
+   "mobilenetv3_large_100_Opset17|wasm-8t": 28.7,
+   "mobilenetv3_large_100_Opset17|webgpu": 42.3,
+   "mobilenetv3_large_100_Opset17|webgpu-capture": 48.6,
+   "mobilenetv3_large_100_Opset17|webgpu-gpuio": 43.4,
+   "mobilenetv3_large_100_Opset17|webgpu-native": 35.7,
+   "resnet50-v2|wasm-1t": 10.9,
+   "resnet50-v2|wasm-4t": 13.2,
+   "resnet50-v2|wasm-8t": 14.1,
+   "resnet50-v2|webgl": 139.7,
+   "resnet50-v2|webgpu": 75.2,
+   "resnet50-v2|webgpu-capture": 81.4,
+   "resnet50-v2|webgpu-gpuio": 76.8,
+   "resnet50-v2|webgpu-native": 76.1,
+   "vit_large_patch16_224_in21k_Opset18|wasm-4t": 10.6,
+   "vit_large_patch16_224_in21k_Opset18|wasm-8t": 10.6,
+   "vit_large_patch16_224_in21k_Opset18|webgpu": 126.3,
+   "vit_large_patch16_224_in21k_Opset18|webgpu-capture": 128.2,
+   "vit_large_patch16_224_in21k_Opset18|webgpu-gpuio": 127.8,
+   "vit_large_patch16_224_in21k_Opset18|webgpu-native": 137.8,
+   "yolov2-coco-9|wasm-1t": 10.6,
+   "yolov2-coco-9|wasm-4t": 10.9,
+   "yolov2-coco-9|wasm-8t": 11.1,
+   "yolov2-coco-9|webgl": 125.4,
+   "yolov2-coco-9|webgpu": 123.0,
+   "yolov2-coco-9|webgpu-capture": 129.2,
+   "yolov2-coco-9|webgpu-gpuio": 125.4,
+   "yolov2-coco-9|webgpu-native": 114.7
+  },
+  "short_windows": 25
+ },
+ "5e_main_thread": {
+  "files": [
+   "fig18_main_thread.png",
+   "fig18_main_thread.pdf"
+  ],
+  "input_delay": [
+   {
+    "model": "bert_Opset17",
+    "backend": "wasm-1t",
+    "p50": 225.85,
+    "p95": 289.487,
+    "latency_p50_ms": 479.017,
+    "delay_over_latency": 0.471
+   },
+   {
+    "model": "bert_Opset17",
+    "backend": "wasm-8t",
+    "p50": 67.505,
+    "p95": 111.439,
+    "latency_p50_ms": 116.062,
+    "delay_over_latency": 0.582
+   },
+   {
+    "model": "bert_Opset17",
+    "backend": "webgpu",
+    "p50": 0.285,
+    "p95": 2.514,
+    "latency_p50_ms": 31.045,
+    "delay_over_latency": 0.009
+   },
+   {
+    "model": "bert_Opset17",
+    "backend": "webgpu-capture",
+    "p50": 0.235,
+    "p95": 0.393,
+    "latency_p50_ms": 29.95,
+    "delay_over_latency": 0.008
+   },
+   {
+    "model": "efficientnet_b5_Opset17",
+    "backend": "wasm-1t",
+    "p50": 497.765,
+    "p95": 614.996,
+    "latency_p50_ms": 756.15,
+    "delay_over_latency": 0.658
+   },
+   {
+    "model": "efficientnet_b5_Opset17",
+    "backend": "wasm-8t",
+    "p50": 124.475,
+    "p95": 154.222,
+    "latency_p50_ms": 165.608,
+    "delay_over_latency": 0.752
+   },
+   {
+    "model": "efficientnet_b5_Opset17",
+    "backend": "webgl",
+    "p50": 75.082,
+    "p95": 85.054,
+    "latency_p50_ms": 84.475,
+    "delay_over_latency": 0.889
+   },
+   {
+    "model": "efficientnet_b5_Opset17",
+    "backend": "webgpu",
+    "p50": 0.27,
+    "p95": 4.555,
+    "latency_p50_ms": 31.11,
+    "delay_over_latency": 0.009
+   },
+   {
+    "model": "efficientnet_b5_Opset17",
+    "backend": "webgpu-capture",
+    "p50": 0.255,
+    "p95": 0.325,
+    "latency_p50_ms": 30.783,
+    "delay_over_latency": 0.008
+   },
+   {
+    "model": "mobilebert_Opset17",
+    "backend": "wasm-1t",
+    "p50": 109.94,
+    "p95": 122.64,
+    "latency_p50_ms": 124.67,
+    "delay_over_latency": 0.882
+   },
+   {
+    "model": "mobilebert_Opset17",
+    "backend": "wasm-8t",
+    "p50": 26.85,
+    "p95": 46.409,
+    "latency_p50_ms": 42.917,
+    "delay_over_latency": 0.626
+   },
+   {
+    "model": "mobilebert_Opset17",
+    "backend": "webgpu",
+    "p50": 8.607,
+    "p95": 12.336,
+    "latency_p50_ms": 17.438,
+    "delay_over_latency": 0.494
+   },
+   {
+    "model": "mobilebert_Opset17",
+    "backend": "webgpu-capture",
+    "p50": 0.245,
+    "p95": 0.361,
+    "latency_p50_ms": 13.4,
+    "delay_over_latency": 0.018
+   },
+   {
+    "model": "mobilenetv2-7",
+    "backend": "wasm-1t",
+    "p50": 8.163,
+    "p95": 27.189,
+    "latency_p50_ms": 28.58,
+    "delay_over_latency": 0.286
+   },
+   {
+    "model": "mobilenetv2-7",
+    "backend": "wasm-8t",
+    "p50": 5.105,
+    "p95": 8.688,
+    "latency_p50_ms": 8.365,
+    "delay_over_latency": 0.61
+   },
+   {
+    "model": "mobilenetv2-7",
+    "backend": "webgl",
+    "p50": 2.735,
+    "p95": 5.113,
+    "latency_p50_ms": 5.02,
+    "delay_over_latency": 0.545
+   },
+   {
+    "model": "mobilenetv2-7",
+    "backend": "webgpu",
+    "p50": 0.21,
+    "p95": 0.417,
+    "latency_p50_ms": 4.025,
+    "delay_over_latency": 0.052
+   },
+   {
+    "model": "mobilenetv2-7",
+    "backend": "webgpu-capture",
+    "p50": 0.24,
+    "p95": 0.369,
+    "latency_p50_ms": 2.865,
+    "delay_over_latency": 0.084
+   },
+   {
+    "model": "resnet50-v2",
+    "backend": "wasm-1t",
+    "p50": 141.17,
+    "p95": 163.442,
+    "latency_p50_ms": 199.005,
+    "delay_over_latency": 0.709
+   },
+   {
+    "model": "resnet50-v2",
+    "backend": "wasm-8t",
+    "p50": 18.675,
+    "p95": 50.668,
+    "latency_p50_ms": 50.048,
+    "delay_over_latency": 0.373
+   },
+   {
+    "model": "resnet50-v2",
+    "backend": "webgl",
+    "p50": 7.615,
+    "p95": 25.59,
+    "latency_p50_ms": 26.195,
+    "delay_over_latency": 0.291
+   },
+   {
+    "model": "resnet50-v2",
+    "backend": "webgpu",
+    "p50": 0.25,
+    "p95": 0.819,
+    "latency_p50_ms": 8.49,
+    "delay_over_latency": 0.029
+   },
+   {
+    "model": "resnet50-v2",
+    "backend": "webgpu-capture",
+    "p50": 0.25,
+    "p95": 0.392,
+    "latency_p50_ms": 7.597,
+    "delay_over_latency": 0.033
+   },
+   {
+    "model": "yolov2-coco-9",
+    "backend": "wasm-1t",
+    "p50": 397.71,
+    "p95": 466.828,
+    "latency_p50_ms": 645.903,
+    "delay_over_latency": 0.616
+   },
+   {
+    "model": "yolov2-coco-9",
+    "backend": "wasm-8t",
+    "p50": 33.675,
+    "p95": 128.698,
+    "latency_p50_ms": 136.162,
+    "delay_over_latency": 0.247
+   },
+   {
+    "model": "yolov2-coco-9",
+    "backend": "webgl",
+    "p50": 10.915,
+    "p95": 257.195,
+    "latency_p50_ms": 252.98,
+    "delay_over_latency": 0.043
+   },
+   {
+    "model": "yolov2-coco-9",
+    "backend": "webgpu",
+    "p50": 0.305,
+    "p95": 0.885,
+    "latency_p50_ms": 17.077,
+    "delay_over_latency": 0.018
+   },
+   {
+    "model": "yolov2-coco-9",
+    "backend": "webgpu-capture",
+    "p50": 0.27,
+    "p95": 0.409,
+    "latency_p50_ms": 15.572,
+    "delay_over_latency": 0.017
+   }
+  ]
+ },
+ "5f_llm": {
+  "files": [
+   "fig19_llm.png",
+   "fig19_llm.pdf"
+  ],
+  "llm": [
+   {
+    "backend": "wasm-1t",
+    "ttft_ms": 678.07,
+    "step_p50_ms": 675.29,
+    "step_p95_ms": 705.49,
+    "tokens_per_s": 1.47,
+    "full_output_forward_p50_ms": 680.91
+   },
+   {
+    "backend": "wasm-8t",
+    "ttft_ms": 147.88,
+    "step_p50_ms": 151.9,
+    "step_p95_ms": 171.59,
+    "tokens_per_s": 6.59,
+    "full_output_forward_p50_ms": 152.38
+   },
+   {
+    "backend": "webgpu",
+    "ttft_ms": 46.29,
+    "step_p50_ms": 46.4,
+    "step_p95_ms": 48.75,
+    "tokens_per_s": 21.4,
+    "full_output_forward_p50_ms": 110.43
+   },
+   {
+    "backend": "webgpu-native",
+    "ttft_ms": 30.28,
+    "step_p50_ms": 30.99,
+    "step_p95_ms": 33.13,
+    "tokens_per_s": 32.26,
+    "full_output_forward_p50_ms": 114.16
+   }
+  ]
+ },
+ "6_correctness": {
+  "files": [
+   "fig20_correctness.png",
+   "fig20_correctness.pdf"
+  ],
+  "worst_norm_err_by_config": {
+   "wasm-1t": 2.290956178939783e-05,
+   "wasm-4t": 2.290956178939783e-05,
+   "wasm-8t": 2.290956178939783e-05,
+   "webgl": 3.7516748325417154e-05,
+   "webgpu": 7.946055099920469e-06,
+   "webgpu-capture": 7.946055099920469e-06,
+   "webgpu-gpuio": 7.946055099920469e-06,
+   "webgpu-native": 8.683663590208446e-06
+  },
+  "min_top1_agreement": 1.0,
+  "min_cosine": 0.999999999444636
+ },
+ "7_prediction": {
+  "files": [
+   "fig21_prediction.png",
+   "fig21_prediction.pdf"
+  ],
+  "median_ape_by_config": {
+   "wasm-8t": 0.186,
+   "webgl": 0.226,
+   "webgpu": 0.5
+  },
+  "selection_optimal_frac": 0.9166666666666666,
+  "violations": 0,
+  "median_regret_rel": 0.0,
+  "webgl_rule_accuracy": 1.0
+ }
+}

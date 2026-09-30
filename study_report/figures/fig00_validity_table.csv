@@ -1,0 +1,13 @@
+metric,source,resolution,checks (this run),verdict
+End-to-end latency,performance.now() around session.run(),5.0 µs,cross-origin isolated=True; smallest median 2.87 ms → resolution ≤ 0.17% of the smallest effect,exact
+Latency distribution (p50–p99),200 runs × 3 fresh browser launches,p99 from ≥200 samples,"between-launch CoV of medians: median 0.015; 100/270 runs show drift (|ρ|>0.3, p<0.01)",exact
+GPU kernel time (WebGPU),WebGPU timestamp queries (ORT profiling hook),ns (developer features on),busy≤span≤wall violations 0/1800; phase wall ×1.006 vs counters phase (pass per dispatch),bounded
+GPU draw time (WebGL),EXT_disjoint_timer_query_webgl2 per draw,ns,disjoint (invalid) queries: 0,bounded
+CPU-side kernel time,ORT C++ profiler (per-node Compute),µs,node≤model_run≤wall violations 0/2880; counter phase ×1.014 of latency p50,bounded
+"Dispatch / submit / draw counts, bytes moved",prototype wrappers on WebGPU/WebGL APIs,exact counts,read from call arguments; identical across runs of a model,exact
+Logical GPU memory,createBuffer/destroy & texImage2D accounting,bytes,allocator-level view; driver padding not visible,bounded
+GPU energy per inference,NVML total-energy counter (≈96 ms updates),mJ,"91% of windows ≥ 1 s; GPU board only, CPU energy not measurable",bounded
+GPU utilisation / clocks / power,"NVML (driver samples ≈200 ms, power ≈390 ms)",coarse,device-wide (includes desktop compositor),proxy
+CPU time per inference,psutil cpu_times of this launch's Chrome processes,≈15 ms (Windows tick),system-wide CPU median 28.4% during runs,bounded
+Correctness,native onnxruntime (CPU EP) on identical input bytes,fp32,deterministic reference,exact
+Main-thread input delay,pointerdown event.timeStamp → handler start,5 µs,"real CDP input events; Event Timing API thresholded at 16 ms, so not used",exact

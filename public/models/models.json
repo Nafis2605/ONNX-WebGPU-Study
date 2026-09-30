@@ -1,96 +1,277 @@
 {
   "models": [
-
     {
-      "name": "alexnet_Opset16",
-      "path": "/models/alexnet_Opset16.onnx",
+      "name": "mobilenetv2-7",
+      "path": "/models/mobilenetv2-7.onnx",
       "inputs": [
-        { "name": "input", "type": "float32", "dims": [1, 3, 224, 224] }
+        {
+          "name": "data",
+          "type": "float32",
+          "dims": [
+            1,
+            3,
+            224,
+            224
+          ]
+        }
+      ],
+      "logits_outputs": [
+        "mobilenetv20_output_flatten0_reshape0"
       ]
     },
-
     {
       "name": "mobilenetv3_large_100_Opset17",
       "path": "/models/mobilenetv3_large_100_Opset17.onnx",
       "inputs": [
-        { "name": "x", "type": "float32", "dims": [1, 3, 224, 224] }
+        {
+          "name": "x",
+          "type": "float32",
+          "dims": [
+            1,
+            3,
+            224,
+            224
+          ]
+        }
+      ],
+      "logits_outputs": [
+        "498"
       ]
     },
-
+    {
+      "name": "alexnet_Opset16",
+      "path": "/models/alexnet_Opset16.onnx",
+      "inputs": [
+        {
+          "name": "x",
+          "type": "float32",
+          "dims": [
+            1,
+            3,
+            224,
+            224
+          ]
+        }
+      ],
+      "logits_outputs": [
+        "36"
+      ]
+    },
     {
       "name": "resnet50-v2",
       "path": "/models/resnet50-v2-7.onnx",
+      "webgl_path": "/models/resnet50-v2-7_b1.onnx",
       "inputs": [
-        { "name": "data", "type": "float32", "dims": [1, 3, 224, 224] }
+        {
+          "name": "data",
+          "type": "float32",
+          "dims": [
+            1,
+            3,
+            224,
+            224
+          ]
+        }
+      ],
+      "shape_sweep": {
+        "input": "data",
+        "axis": 0,
+        "values": [
+          1,
+          2,
+          4,
+          8
+        ],
+        "batch_values": [
+          1,
+          2,
+          4,
+          8,
+          16
+        ]
+      },
+      "logits_outputs": [
+        "resnetv24_dense0_fwd"
       ]
     },
-
     {
       "name": "adv_inception_v3_Opset17",
       "path": "/models/adv_inception_v3_Opset17_int32.onnx",
       "inputs": [
-        { "name": "x", "type": "float32", "dims": [1, 3, 299, 299] }
+        {
+          "name": "x",
+          "type": "float32",
+          "dims": [
+            1,
+            3,
+            299,
+            299
+          ]
+        }
+      ],
+      "logits_outputs": [
+        "875"
       ]
     },
-
     {
       "name": "efficientnet_b5_Opset17",
       "path": "/models/efficientnet_b5_Opset17.onnx",
       "inputs": [
-        { "name": "x", "type": "float32", "dims": [1, 3, 448, 448] }
+        {
+          "name": "x",
+          "type": "float32",
+          "dims": [
+            1,
+            3,
+            448,
+            448
+          ]
+        }
+      ],
+      "logits_outputs": [
+        "1548"
       ]
     },
-
     {
       "name": "vit_large_patch16_224_in21k_Opset18",
       "path": "/models/vit_large_patch16_224_in21k_Opset18.onnx",
       "inputs": [
-        { "name": "input", "type": "float32", "dims": [1, 3, 224, 224] }
+        {
+          "name": "x",
+          "type": "float32",
+          "dims": [
+            1,
+            3,
+            224,
+            224
+          ]
+        }
+      ],
+      "logits_outputs": [
+        "2133"
       ]
     },
-
     {
       "name": "yolov2-coco-9",
       "path": "/models/yolov2-coco-9.onnx",
       "inputs": [
-        { "name": "input.1", "type": "float32", "dims": [1, 3, 416, 416] }
+        {
+          "name": "input.1",
+          "type": "float32",
+          "dims": [
+            1,
+            3,
+            416,
+            416
+          ]
+        }
       ]
     },
-
     {
       "name": "deeplabv3p-resnet50-human",
       "path": "/models/deeplabv3p-resnet50-human.onnx",
+      "webgl_path": "/models/deeplabv3p-resnet50-human_b1.onnx",
       "inputs": [
-        { "name": "input_1", "type": "float32", "dims": [1, 512, 512, 3] }
+        {
+          "name": "input_1",
+          "type": "float32",
+          "dims": [
+            1,
+            512,
+            512,
+            3
+          ]
+        }
+      ],
+      "shape_sweep": {
+        "input": "input_1",
+        "axis": 0,
+        "values": [
+          1,
+          2,
+          4
+        ]
+      },
+      "logits_outputs": [
+        "conv2d_9"
       ]
     },
-
     {
-      "name": "mobilebert_Opset18",
+      "name": "mobilebert_Opset17",
       "path": "/models/mobilebert_Opset17.onnx",
       "inputs": [
-        { "name": "input_ids", "type": "int64", "dims": [1, 128] },
-        { "name": "attention_mask", "type": "float32", "dims": [1, 128] }
+        {
+          "name": "input_ids",
+          "type": "int64",
+          "dims": [
+            1,
+            128
+          ]
+        },
+        {
+          "name": "attention_mask",
+          "type": "float32",
+          "dims": [
+            1,
+            128
+          ],
+          "fill": "ones"
+        }
       ]
     },
-
     {
       "name": "bert_Opset17",
       "path": "/models/bert_Opset17_int32.onnx",
       "inputs": [
-        { "name": "input_ids", "type": "int32", "dims": [1, 128] },
-        { "name": "attention_mask", "type": "float32", "dims": [1, 128] }
+        {
+          "name": "input_ids",
+          "type": "int32",
+          "dims": [
+            1,
+            128
+          ]
+        },
+        {
+          "name": "attention_mask",
+          "type": "float32",
+          "dims": [
+            1,
+            128
+          ],
+          "fill": "ones"
+        }
       ]
     },
-
     {
       "name": "gpt2lmhead_Opset18",
       "path": "/models/gpt2lmhead_Opset18_int32.onnx",
       "inputs": [
-        { "name": "input_ids", "type": "int32", "dims": [1, 128] },
-        { "name": "attention_mask", "type": "float32", "dims": [1, 128] }
+        {
+          "name": "input_ids",
+          "type": "int32",
+          "dims": [
+            1,
+            128
+          ]
+        },
+        {
+          "name": "attention_mask",
+          "type": "float32",
+          "dims": [
+            1,
+            128
+          ],
+          "fill": "ones"
+        }
+      ],
+      "llm": {
+        "input_ids": "input_ids",
+        "attention_mask": "attention_mask",
+        "logits": "2103"
+      },
+      "logits_outputs": [
+        "2103"
       ]
     }
-
   ]
 }

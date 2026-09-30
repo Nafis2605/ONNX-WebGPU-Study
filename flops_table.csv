@@ -1,2 +1,13 @@
-Model,MFLOPs
-
+model,file,MMACs,MFLOPs_2x_MACs,counted_nodes,skipped_nodes
+mobilenetv2-7,mobilenetv2-7.onnx,429.11,858.22,54,0
+mobilenetv3_large_100_Opset17,mobilenetv3_large_100_Opset17.onnx,216.59,433.18,64,0
+alexnet_Opset16,alexnet_Opset16.onnx,714.19,1428.38,8,0
+resnet50-v2,resnet50-v2-7.onnx,4089.18,8178.37,54,0
+adv_inception_v3_Opset17,adv_inception_v3_Opset17_int32.onnx,5713.22,11426.43,95,0
+efficientnet_b5_Opset17,efficientnet_b5_Opset17.onnx,9404.37,18808.75,195,0
+vit_large_patch16_224_in21k_Opset18,vit_large_patch16_224_in21k_Opset18.onnx,61576.06,123152.11,146,0
+yolov2-coco-9,yolov2-coco-9.onnx,14732.08,29464.17,23,0
+deeplabv3p-resnet50-human,deeplabv3p-resnet50-human.onnx,40798.06,81596.12,52,0
+mobilebert_Opset17,mobilebert_Opset17.onnx,2667.58,5335.15,408,1
+bert_Opset17,bert_Opset17_int32.onnx,11174.22,22348.43,97,0
+gpt2lmhead_Opset18,gpt2lmhead_Opset18_int32.onnx,16114.09,32228.18,73,0

@@ -1,0 +1,13 @@
+model,picked,best,violation,regret_ms,regret_rel
+adv_inception_v3_Opset17,webgpu,webgpu,False,0.0,0.0
+alexnet_Opset16,webgpu,webgpu,False,0.0,0.0
+bert_Opset17,webgpu,webgpu,False,0.0,0.0
+deeplabv3p-resnet50-human,webgpu,webgpu,False,0.0,0.0
+efficientnet_b5_Opset17,webgpu,webgpu,False,0.0,0.0
+gpt2lmhead_Opset18,webgpu,webgpu,False,0.0,0.0
+mobilebert_Opset17,webgpu,webgpu,False,0.0,0.0
+mobilenetv2-7,webgl,webgpu,False,0.9950001239776611,0.24720500853183136
+mobilenetv3_large_100_Opset17,webgpu,webgpu,False,0.0,0.0
+resnet50-v2,webgpu,webgpu,False,0.0,0.0
+vit_large_patch16_224_in21k_Opset18,webgpu,webgpu,False,0.0,0.0
+yolov2-coco-9,webgpu,webgpu,False,0.0,0.0

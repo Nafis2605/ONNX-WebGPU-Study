@@ -1,515 +1,200 @@
-# ONNX Runtime Web Benchmark
+# ONNX Runtime Web Benchmark Study
 
-Benchmarking system for ONNX Runtime Web with support for WASM, WebGL, and WebGPU backends.
+Automated, measurement-only benchmarking of ONNX Runtime Web on the **WASM**, **WebGPU** and
+**WebGL** backends, on Windows with an NVIDIA GPU and **Google Chrome Dev**.
 
-## Setup
+Design rules the code follows:
+
+- **No fabricated values.** Every number is a direct measurement (timers, GPU timestamp and timer
+  queries, graphics-API call arguments, ORT's own trace, NVML, OS process counters). A value that
+  can't be measured is left empty, never estimated.
+- **Strict backends.** Each session has exactly one execution provider. WebGPU sessions refuse to
+  place any node on the CPU (`session.disable_cpu_ep_fallback`). A run only counts as `ok` when
+  API counters prove the backend did the work: WebGPU submits/dispatches, WebGL draws, and no
+  GPU calls at all for WASM.
+- **Timing and instrumentation are separate.** Latency comes from uninstrumented runs. Counters,
+  kernel timing and memory accounting run in their own browser launches (`profile` mode).
+- **Cold, isolated launches.** A new Chrome Dev process with an empty profile and no shader disk
+  cache for every (trial, model, backend).
+- **Raw data first.** The browser returns per-run records; statistics are computed offline by
+  `analysis/*.py`.
+
+## Setup (Windows)
 
 ```bash
-# Install dependencies
-pip install -r requirements.txt
+winget install Python.Python.3.12
+winget install Google.Chrome.Dev
 npm install
-
-# Start development server
-npm run dev
-# Server runs at http://localhost:5173/
+python -m venv .venv
+.venv\Scripts\python -m pip install -r requirements.txt
 ```
 
-## Running Benchmarks
+Chrome Dev is auto-detected (`CHROME_DEV_PATH` overrides it). Models (`*.onnx`, gitignored) go in
+`public/models/` and are registered in `public/models/models.json`.
 
-### Browser Testing
-1. Open http://localhost:5173/ in your browser
-2. Select a model from the dropdown
-3. Choose a backend (WASM, WebGL, or WebGPU)
-4. Click "Run Benchmark"
-5. Results display in the table
-
-### Automated Benchmarking
+Benchmarks run against the production build, served with cross-origin isolation (5 µs timer
+resolution) and the model files served in place:
 
 ```bash
-# WASM backend
-python run_benchmark.py \
-    --url http://localhost:5173 \
-    --models ./public/models/models.json \
-    --backend wasm \
-    --filter gpt2 \
-    --warmup 1 \
-    --measure 2
-
-# WebGL backend
-python run_benchmark.py \
-    --url http://localhost:5173 \
-    --models ./public/models/models.json \
-    --backend webgl \
-    --filter gpt2 \
-    --warmup 1 \
-    --measure 2
-
-# WebGPU backend
-python run_benchmark.py \
-    --url http://localhost:5173 \
-    --models ./public/models/models.json \
-    --backend webgpu \
-    --filter gpt2 \
-    --warmup 1 \
-    --measure 2
+npm run bench:serve
 ```
 
-## Benchmark Parameters
+(`npm run dev` still works for manual use. Don't benchmark against it: editing a source file
+live-reloads the page and kills a running experiment.)
 
-- `--url`: Web server URL (default: http://localhost:5173)
-- `--models`: Path to models.json file
-- `--backend`: Backend to test (wasm, webgl, webgpu)
-- `--filter`: Model name filter (e.g., gpt2)
-- `--warmup`: Number of warmup runs (default: 1)
-- `--measure`: Number of measurement runs (default: 10)
+## Running
 
-## Output
-
-Results are saved to `benchmark_results/benchmark_metrics_TIMESTAMP.csv`
-
-CSV columns include:
-- Model name, backend, warmup/measure runs
-- Inference timing metrics (avg warmup, avg inference)
-- Kernel metrics (execution time, launch latency, fusion rate, etc.)
-- GPU metrics (vendor, memory usage, core utilization)
-- Top 5 kernels with execution times
-
-## Files
-
-- `src/main.js` - Frontend benchmark application
-- `run_benchmark.py` - Python automation script for CLI benchmarking
-- `index.html` - Web interface
-- `public/models/` - ONNX model files
-- `benchmark_results/` - Benchmark output CSV files
-
-
-**Solution:** Load JSEP-enabled WASM bundle (`ort-wasm-simd-threaded.jsep.wasm`)
-
-**Code Fix (src/main.js):**
-```javascript
-// Load JSEP-enabled WASM for GPU backend support
-const mjsUrl = `${wasmBasePath}ort-wasm-simd-threaded.jsep.mjs`;
-const wasmUrl = `${wasmBasePath}ort-wasm-simd-threaded.jsep.wasm`;
-```
-
-**Key Change:**
-- ❌ Old: `ort-wasm-simd-threaded.wasm` → No GPU support
-- ✅ New: `ort-wasm-simd-threaded.jsep.wasm` → Full GPU support
-
-This enables WebGPU and WebGL execution providers to initialize correctly.
-
----
-
-## 🔍 Backend Detection System
-
-### What It Solves
-**Problem:** How do I know if WebGPU/WebGL are actually being used or if it's falling back to WASM?
-
-**Solution:** Detects actual backend via performance analysis (warmup spike, variance, latency patterns)
-
-### Features
-✅ **Test Button** - 5-second backend verification without full benchmark  
-✅ **Performance Analysis** - Detects backend from execution patterns  
-✅ **Fallback Prevention** - No silent WASM fallback (now explicit errors)  
-✅ **Comprehensive Logging** - All backend decisions visible in status console  
-✅ **CSV Export** - Detection results included in benchmark output  
-✅ **GPU Metrics** - Real-time GPU utilization, memory, power monitoring
-
-### How Detection Works
-
-Each backend has unique execution characteristics:
-
-| Metric | WebGPU | WebGL | WASM |
-|--------|--------|-------|------|
-| **Warmup Spike** | 10-100x slower | 2-5x slower | No spike |
-| **Variance** | Very low (<15%) | Low (15-30%) | High (20-50%) |
-| **Speed** | 1-50ms | 10-100ms | 10-200ms |
-| **Signature** | Big spike + consistent | Medium spike + stable | No spike + variable |
-
-**Detection Process:**
-1. Checks browser GPU support (navigator.gpu, WebGL context)
-2. Loads small test model
-3. Runs warmup inference (detects GPU shader compilation)
-4. Runs 5 steady-state inferences (measures variance)
-5. Analyzes patterns: warmup/avg ratio, variance, latency
-6. Compares with requested backend
-7. Reports result with confidence level
-
-### Using the Test Button
-
-**Step 1:** Select backend from dropdown (WebGPU, WebGL, WASM)  
-**Step 2:** Click **🧪 Test Backend Detection** button  
-**Step 3:** Wait ~5 seconds for analysis  
-**Step 4:** Check status console for results
-
-**Expected Output - Working Backend:**
-```
-Requested Backend: webgpu
-Performance-Detected Backend: webgpu
-Detection Confidence: high
-
-Performance Metrics:
-  warmupMs: 145.67
-  avgTimeMs: 12.34
-  varianceMs: 0.90
-
-✓ Backend match is good! Likely using webgpu as expected.
-```
-
-**Expected Output - Fallback Detected:**
-```
-Requested Backend: webgpu
-Performance-Detected Backend: wasm
-Detection Confidence: high
-
-Performance Metrics:
-  warmupMs: 12.34
-  avgTimeMs: 8.89
-  varianceMs: 1.22
-
-⚠ WARNING: Requested webgpu but got wasm!
-  This indicates a fallback to wasm.
-```
-
-### Expected Performance Hierarchy
-```
-WebGPU (fastest)    ~8ms
-   ↓ 2-3x difference
-WebGL (medium)      ~15ms
-   ↓ 5-10x difference  
-WASM (slowest)      ~85ms
-```
-
-### Browser Support
-| Browser | WebGPU | WebGL | WASM | Test Button |
-|---------|--------|-------|------|-------------|
-| Chrome 113+ | ✓ | ✓ | ✓ | ✓ |
-| Edge 113+ | ✓ | ✓ | ✓ | ✓ |
-| Firefox | ✗ | ✓ | ✓ | ✓ |
-| Safari | ✗ | ✓ | ✓ | ✓ |
-
-### Troubleshooting Backend Detection
-
-| Issue | Solution |
-|-------|----------|
-| "WebGPU not available" | Use Chrome/Edge 113+, or update browser |
-| "Detection uncertain" | Try with larger model (ResNet50, BERT) - GPU benefit shows on complex models only |
-| "Same metrics all backends" | Check detection confidence - if HIGH + warning = fallback detected |
-| Button doesn't work | Refresh page, check browser console (F12) |
-| "No GPU acceleration" | Check browser settings, update GPU drivers, try different browser |
-
----
-
-## Web Benchmark Interface
-
-Open **http://localhost:5173/** for interactive testing:
-
-**Controls:**
-- Backend selector: WebGPU, WebGL, WASM, WebNN
-- Model multi-select: Hold Ctrl/Cmd to select multiple
-- Warmup runs & measure runs
-- Run/Stop buttons
-- **Test Backend Detection** button (NEW!)
-
-**Output:**
-- Real-time status console
-- Results table with 10 detailed metrics:
-  - Kernel Execution Time, Kernel Launch Latency
-  - Operator Fusion Rate, Per-Operator Latency
-  - Kernel Compilation Time, Memory Bandwidth
-  - Synchronization Overhead, Peak Memory Usage
-  - Time to First Output, End-to-End Latency
-
----
-
-## Python Benchmark (run_benchmark.py)
-
-Run benchmarks from command line:
+Whole study, all stages plus analysis:
 
 ```bash
-python run_benchmark.py \
-    --url http://localhost:5173 \
-    --backend webgpu \
-    --warmup 1 \
-    --measure 100
+.venv\Scripts\python run_study.py
 ```
 
-**Options:**
-- `--url` - Web server URL (default: http://localhost:5173)
-- `--backend` - webgpu, webgl, wasm, webnn (default: wasm)
-- `--warmup` - Warmup runs (default: 1)
-- `--measure` - Measurement runs (default: 100)
-- `--models` - Models JSON path (default: ./public/models/models.json)
-- `--filter` - Filter models by keyword (e.g., `--filter mobilenet`)
-- `--headless` - Run browser in headless mode
-- `--executable-path` - Path to Chrome/Chromium executable
-- `--output-dir` - Output directory for results (default: benchmark_results)
-
-### Platform-Specific Examples
-
-#### macOS (Chrome Dev)
-```bash
-# Basic benchmark with Chrome Dev
-python run_benchmark.py \
-    --url http://localhost:5173 \
-    --models ./public/models/models.json \
-    --backend webgpu \
-    --warmup 1 \
-    --measure 10 \
-    --executable-path "/Applications/Google Chrome Dev.app/Contents/MacOS/Google Chrome Dev"
-
-# Filter specific model (e.g., gpt2)
-python run_benchmark.py \
-    --url http://localhost:5173 \
-    --models ./public/models/models.json \
-    --backend webgpu \
-    --warmup 1 \
-    --measure 10 \
-    --filter gpt2 \
-    --executable-path "/Applications/Google Chrome Dev.app/Contents/MacOS/Google Chrome Dev"
-
-# With headless mode
-python run_benchmark.py \
-    --url http://localhost:5173 \
-    --models ./public/models/models.json \
-    --backend webgpu \
-    --filter mobilenet \
-    --headless \
-    --executable-path "/Applications/Google Chrome Dev.app/Contents/MacOS/Google Chrome Dev"
-```
-
-#### Windows (Chrome Dev)
-```bash
-# Basic benchmark with Chrome Dev
-python run_benchmark.py ^
-    --url http://localhost:5173 ^
-    --models .\public\models\models.json ^
-    --backend webgpu ^
-    --warmup 1 ^
-    --measure 10 ^
-    --executable-path "C:\Program Files\Google\Chrome Dev\Application\chrome.exe"
-
-# Filter specific model (e.g., gpt2)
-python run_benchmark.py ^
-    --url http://localhost:5173 ^
-    --models .\public\models\models.json ^
-    --backend webgpu ^
-    --warmup 1 ^
-    --measure 10 ^
-    --filter gpt2 ^
-    --executable-path "C:\Program Files\Google\Chrome Dev\Application\chrome.exe"
-
-# With headless mode
-python run_benchmark.py ^
-    --url http://localhost:5173 ^
-    --models .\public\models\models.json ^
-    --backend webgpu ^
-    --filter mobilenet ^
-    --headless ^
-    --executable-path "C:\Program Files\Google\Chrome Dev\Application\chrome.exe"
-```
-
-**Note:** On Windows, use `^` for line continuation instead of `\`
-
-### Common Example Commands (All Platforms)
+Quick smoke run of every stage:
 
 ```bash
-# Benchmark only MobileNet with WebGPU
-python run_benchmark.py --url http://localhost:5173 --models ./public/models/models.json --backend webgpu --filter mobilenet
-
-# Run with headless browser
-python run_benchmark.py --url http://localhost:5173 --models ./public/models/models.json --backend wasm --headless
-
-# Custom warmup and measurement runs
-python run_benchmark.py --url http://localhost:5173 --models ./public/models/models.json --backend webgl --warmup 2 --measure 50
-
-# Benchmark multiple models
-python run_benchmark.py --url http://localhost:5173 --models ./public/models/models.json --backend webgpu --warmup 1 --measure 5
+.venv\Scripts\python run_study.py --quick
 ```
 
----
+Re-run only some configs × models inside an existing study, merged into each stage's newest result (same (trial, model, config) experiments replaced; output in `<stage>/<timestamp>_merged/`):
 
-## Output Files
-
-Results saved in `benchmark_results/` directory:
-
-### benchmark_results.csv
-Aggregated metrics per model run:
-- `timestamp` - Run start time
-- `model` - Model name
-- `backend` - Execution provider (webgpu/webgl/wasm)
-- `avg_warmup_ms` - Average warmup latency
-- `avg_inference_ms` - Average inference latency
-- All 10 detailed performance metrics
-- Backend detection info: actual_backend, detection_confidence
-
-### gpu_utilization_intervals.csv
-Per-second GPU metrics during inference:
-- `timestamp_sec` - Seconds into inference (1.05, 2.08, 3.12, etc.)
-- `gpu_utilization_percent` - GPU utilization at that second
-- `gpu_memory_utilization_percent` - GPU memory utilization
-- `gpu_power_draw_mw` - GPU power draw in milliwatts (mW)
-- `memory_mb` - System memory usage
-
----
-
-## Analyzing Results
-
-### Python Analysis
-```python
-import pandas as pd
-
-# Load summary results
-df = pd.read_csv('benchmark_results.csv')
-
-# Performance by backend
-print(df.groupby('backend')[['avg_inference_ms', 'performance_detected_backend']].mean())
-
-# Load interval samples  
-df_intervals = pd.read_csv('gpu_utilization_intervals.csv')
-
-# Peak GPU utilization per model
-print(df_intervals.groupby('model')['gpu_utilization_percent'].max())
-
-# Utilization over time for specific model
-model_data = df_intervals[df_intervals['model'] == 'mobilenetv2-7']
-print(model_data[['timestamp_sec', 'gpu_utilization_percent']])
+```bash
+.venv\Scripts\python run_study.py --output-dir benchmark_results\study_full --supplement --config webgl --models resnet50-v2 deeplabv3p
 ```
 
----
+Diagnostic stages (not in the default study): where WebGL's inference time goes, and the raw readback cost per API path. `webgl_readback` needs the unminified diagnostic build, so V8 profiles show ORT's function names:
 
-## System Requirements
-
-### macOS (Apple Silicon/Metal)
-- Python 3.8+
-- `system_profiler` (built-in)
-- Dependencies: psutil, pandas, playwright
-
-### Linux/Windows (NVIDIA GPU)
-- Python 3.8+
-- `nvidia-smi` (NVIDIA drivers)
-- Dependencies: psutil, pandas, playwright
-
-### All Platforms
-- Node.js 16+
-- Chrome/Chromium browser
-- Web server running at target URL
-
----
-
-## Project Structure
-
-```
-.
-├── src/
-│   └── main.js                   # Web UI with backend detection
-├── public/
-│   ├── models/                   # ONNX models
-│   │   ├── models.json
-│   │   └── *.onnx
-│   └── ort-wasm/                 # ONNX Runtime WASM
-├── benchmark_results/            # Output CSV files
-├── run_benchmark.py              # Main benchmark script
-├── gpu_metrics.py                # GPU metrics collector
-├── index.html                    # Web UI entry point
-├── package.json                  # Node dependencies
-├── vite.config.js                # Vite config
-└── README.md                     # This file
+```bash
+npx vite build --mode diag
 ```
 
----
+```bash
+npx vite preview --mode diag
+```
 
-## Performance Metrics Collected
+```bash
+.venv\Scripts\python run_study.py --output-dir benchmark_results\study_full --stages readback_micro webgl_readback
+```
 
-**Per-run metrics:**
-- Warmup latency (ms)
-- Inference latency (ms)
-- Kernel execution time
-- Kernel launch latency
-- Operator fusion rate (%)
-- Per-operator latency
-- Kernel compilation time
-- Memory bandwidth (GB/s)
-- Synchronization overhead
-- Peak memory usage (MB)
+- **`--gl-timing` (profile mode, WebGL):** adds phases that time every WebGL call, splitting `readPixels` into GPU drain and transfer.
+- **`--cpu-profile`:** saves a V8 sampling profile of extra runs (`logs/<tag>.cpuprofile`).
+- **`--trace`:** saves a Chrome trace with GPU-process categories (`logs/<tag>.trace.json.gz`).
+- **`run_readback_micro.py`:** times GPU→JS readback without ORT, for WebGL `readPixels` (RGBA, RED, PBO), WebGPU `mapAsync`, and ORT's RGBA-unpack expression vs a strided loop.
+- **`analysis/webgl_readback.py <study>`:** summarizes both stages.
 
-**Backend detection metrics (NEW!):**
-- Actual backend detected
-- Detection confidence level
-- Warmup time (ms)
-- Average inference time (ms)
-- Variance between runs (ms)
+A single stage:
 
-**1-second interval samples:**
-- GPU utilization (%)
-- GPU memory utilization (%)
-- GPU power draw (mW)
-- System memory (MB)
+```bash
+.venv\Scripts\python run_benchmark.py --mode latency --config wasm-8t webgpu webgl --filter resnet50-v2 --warmup 10 --measure 200 --trials 3
+```
 
----
+Configs (`--config`, defined in `run_benchmark.py` `CONFIGS`); the CSVs' `backend` column holds the config label:
 
-## Important Notes
+| Config | Meaning |
+|---|---|
+| `wasm-1t`, `wasm-4t`, `wasm-8t` | WASM EP with 1 / 4 / 8 threads |
+| `webgl` | WebGL EP |
+| `webgpu` | JSEP WebGPU EP, CPU I/O |
+| `webgpu-native` | Native C++ WebGPU EP (`onnxruntime-web/webgpu`) |
+| `webgpu-gpuio` | JSEP with GPU-resident inputs/outputs |
+| `webgpu-capture` | GPU-resident I/O plus graph capture |
 
-- GPU metrics are optional; benchmarking continues if GPU collection fails
-- Real power draw measurement requires direct system access (powermetrics/nvidia-smi)
-- Browser WebGPU workloads typically show lower power than native applications
-- For production power analysis, use native ONNX Runtime Python (non-browser)
-- Backend detection is most reliable on complex models (ResNet50, BERT, ViT)
-- Results are appended to CSV files (multiple runs accumulate data)
+`--outputs primary` fetches only the primary output; `--exclude model:config` skips pairs; `--cool-to-c` waits for the GPU to cool before each launch.
 
----
+Figures for the paper (PNG + PDF, plus `findings.json`):
 
-## Code Changes for Backend Detection
+```bash
+.venv\Scripts\python analysis\make_figures.py benchmark_results\study_full --out study_report\figures
+```
 
-**src/main.js:**
-- `checkBackendAvailability()` - Detect WebGPU/WebGL browser support
-- `detectBackendViaPerformance()` - Analyze execution patterns for backend detection
-- `executionProvidersForBackend()` - Modified to prevent silent fallbacks
-- `testBackendBtn.onclick` - Test button handler
-- Enhanced logging throughout session creation
+| `--mode` | Study group | What it does |
+|---|---|---|
+| `latency` | 1, 2 | Closed-loop runs at the base shape: fetch, session create, first/second inference, steady-state distribution |
+| `batch` | 2 | Per-sample latency across the model's batch sizes (`shape_sweep`) |
+| `shapes` | 1 | Seeded replay of input shapes (models with `shape_sweep`): first-seen vs revisited vs steady |
+| `profile` | 5, 6, 7 | Instrumented pass: per-run API counters, per-kernel GPU/CPU time, data movement, memory |
+| `correctness` | 10 | Outputs vs native ONNX Runtime (CPU EP) on the identical input bytes |
+| `responsiveness` | 4 | Frame timing and click latency with and without inference running |
+| `llm` | 3 | Greedy token generation timing (models with an `llm` spec) |
+| `load` | 8 | Open-loop Poisson arrivals at swept rates, bounded queue, deadlines |
 
-**index.html:**
-- Added blue "🧪 Test Backend Detection" button
-- Added CSS styling for new button
+Useful flags: `--trials N` (independent browser launches), `--allow-cpu-nodes` (let WebGPU place
+unsupported nodes on the CPU and record how many), `--wasm-threads N`, `--pacing yield|back_to_back`,
+`--no-telemetry`, `--headless` (headed is the default and recommended for GPU runs).
 
-**Total addition:** ~420 lines of backend detection logic + enhanced logging
+Analysis (each writes CSVs next to the data it reads):
 
----
+| Script | Output |
+|---|---|
+| `analysis/summarize.py` | Latency p50/p90/p95/p99, IQR, CoV, closed-loop throughput, bootstrap CIs |
+| `analysis/init_reuse.py` | Fetch / session-create / first-run overhead; first-seen vs revisited shapes |
+| `analysis/gpu_telemetry.py` | Energy per inference, power, utilization, clocks, throttle reasons, device memory |
+| `analysis/profile_summary.py` | CPU-side vs GPU time, dispatch groups, bytes moved, memory, top op types |
+| `analysis/responsiveness.py` | Frame-interval distribution, missed-deadline fraction, click input delay |
+| `analysis/llm.py` | Time to first token, inter-token gaps, tokens/s |
+| `analysis/load.py` | Goodput, deadline-miss / reject rates, max sustainable tested rate |
+| `analysis/predict.py` | Leave-one-model-out latency prediction, backend selection regret, WebGL feasibility rule |
+| `calculate_flops.py` | MACs / FLOPs per model (Conv, MatMul, Gemm) → `flops_table.csv` |
 
-## Troubleshooting
+## Output (`benchmark_results/<timestamp>/`)
 
-### Benchmark Hangs
-- Ensure web server is running: `npm run dev`
-- Check URL: `curl http://localhost:5173`
+- `env.json`: host, CPU, RAM, NVIDIA GPU/driver/VBIOS, Chrome version and flags, ORT version, WebGPU adapter, WebGL renderer, git commit, all arguments
+- `experiments.jsonl`: one raw record per experiment (the source of truth)
+- `sessions.csv`: status, failure stage/category/message, load and session times, verification counters, node placement
+- `runs.csv`: one row per inference (profile mode adds per-run counters)
+- `kernels.csv` (profile): per-kernel records (WebGPU timestamp queries, WebGL timer queries, ORT trace nodes)
+- `gpu_samples.csv`, `gpu_util_samples.csv`, `gpu_pcie_samples.csv`, `gpu_marks.csv`: NVML telemetry
+- `chrome_memory_samples.csv`: private/RSS memory of this launch's browser, renderer and GPU processes
+- `correctness.csv`, `frames.csv`, `clicks.csv`, `interactions.csv`, `loaf.csv`, `load_requests.csv`, `load_frames.csv`: mode-specific data
+- `logs/`: browser console per experiment
 
-### Browser Not Found
-- Install playwright browsers: `playwright install chromium`
+## What is measured, and what isn't
 
-### Models Not Found
-- Verify: `./public/models/models.json` exists
-- Check: `./public/models/` directory
+| Group | Measured | Caveats / not feasible |
+|---|---|---|
+| 1 Init & reuse | Model fetch (localhost), session creation, first and second inference; ORT session-init breakdown (`model_loading_array`, `session_initialization`) in profile mode; first-seen vs revisited shape latency | Shape study only for models with symbolic dims (ResNet-50 and DeepLab batch). BERT and GPT-2 are exported with a fixed sequence length of 128. |
+| 2 Inference | Per-run E2E latency (outputs read back to the CPU), p50/p95/p99, closed-loop throughput | p99 is flagged unless ≥100 runs |
+| 3 LLM | TTFT, inter-token gaps, tokens/s | The GPT-2 export has no KV-cache inputs, so every token is a full 128-token forward pass. Prefill and decode can't be separated; results are labelled no-KV-cache. |
+| 4 Responsiveness | rAF frame intervals, missed-deadline fraction (display refresh measured in the baseline), per-click input delay and time to next frame, Event Timing entries, Long Animation Frames | Event Timing only reports events ≥16 ms and rounds them to 8 ms, so the page's own click measurement is the complete stream |
+| 5 Execution | WebGPU: per-kernel GPU time (timestamp queries), CPU-side node time (ORT trace), dispatches, submits, dispatches per submit, compute passes. WebGL: per-draw GPU time (`EXT_disjoint_timer_query_webgl2`) and draws. WASM: per-op CPU time (ORT trace) | Chrome exposes only `timestamp-query`, not timestamps inside passes. ORT therefore ends a compute pass after every dispatch in the GPU-timing phase, so that phase's wall times aren't latency numbers. ORT's dispatch batch size (16) is hardcoded, so no submission-size sweep. |
+| 6 Data movement | WebGPU `writeBuffer` bytes, `mapAsync(READ)` bytes and resolve latency, buffer copies; WebGL texture upload and `readPixels` bytes; CPU↔GPU boundaries (ORT `Memcpy` nodes) | Readback latency includes waiting for queued GPU work |
+| 7 Memory | Logical GPU memory (live WebGPU buffer bytes, WebGL texture bytes: after session create, peak, final); page memory (`measureUserAgentSpecificMemory`); Chrome process private bytes; NVML device memory; failure rate | Windows (WDDM) doesn't report per-process GPU memory, so NVML memory is device-wide and compared with an idle baseline |
+| 8 Application | Goodput, deadline-miss, reject and unfinished rates, max sustainable tested rate, frame misses under load | Max rate is the highest *tested* rate; nothing is interpolated |
+| 9 Prediction | Leave-one-model-out prediction error, selection violations and regret, calibration time; static WebGL feasibility rule validated against measured outcomes | Few models per backend; the WebGL rule was derived on these 12 models |
+| 10 Correctness | Max/mean abs error, RMSE, max relative error, cosine vs native ORT; top-1/top-5 agreement for declared logits outputs | Agreement with the reference, not task accuracy (no labelled datasets) |
+| NVIDIA | Energy via the NVML energy counter (~96 ms resolution), power, SM/memory utilization (driver samples, ~200 ms), clocks, temperature, P-state, throttle reasons, PCIe TX/RX | Single-run energy isn't resolvable. NVML utilization is device-wide (includes the desktop compositor). |
 
-### GPU Metrics Missing
-- GPU collection is optional; benchmarking continues
-- Check browser console (F12) for errors
-- Some metrics may show "N/A" on unsupported hardware
+## Findings about the runtime (ORT Web 1.24.0-dev, Chrome Dev 156, RTX 3060)
 
----
+- **The default `onnxruntime-web` entry doesn't register WebGL.** A `["webgl", "wasm"]` session silently ran on WASM, so earlier "WebGL" results were WASM. `src/ort-setup.js` now imports `onnxruntime-web/all`.
+- **WebGL rejects models with symbolic input dims** (`expected shape '[,3,224,224]'`). The graph parser leaves `dim_param` undefined, but the check only accepts 0. This affects ResNet-50 and DeepLab. For WebGL only, they load a copy with the input dims pinned: `public/patch/pin_input_dims.py <model>` writes `<file>_b1.onnx` (same graph and weights, checked bit-identical against the original on native ORT), and the `webgl_path` field in `models.json` selects it. `sessions.csv` records the file used in `model_path`.
+- **WebGL can't load int64 values outside the int32 range** (e.g. `INT64_MAX` Slice bounds in ViT and MobileBERT), and lacks `ConstantOfShape`, `LayerNormalization`, `HardSwish`, among others.
+- **Starting ORT's WebGL profiler breaks inference** (`reading 'inputTypes'`), so WebGL draws are timed with the page's own timer queries.
+- **WebGPU runs all 12 models in strict mode** (0 CPU-placed nodes, 0 memcpy boundaries).
 
-## Support & Questions
+## NVIDIA Nsight (not automated yet)
 
-For backend detection issues:
-1. Open browser DevTools (F12)
-2. Go to Console tab
-3. Run backend test again
-4. Check console output for error messages
-5. Verify browser version supports your target backend
+Nsight Systems and Nsight Graphics require a download from NVIDIA's developer site (account
+login), and only Nsight Compute is in winget. Nsight Compute profiles CUDA kernels, not
+Chrome's D3D12/D3D11 work. After installing Nsight Systems, a system-wide GPU trace of one
+experiment would look like the following. This command is untested here and must be verified
+after installation:
 
-For general questions:
-- Check status console output during benchmark
-- Review CSV results for detection info
-- Validate browser supports target backend
+```bash
+nsys profile --trace=dx12,wddm --gpu-metrics-devices=0 -o nsight\resnet50_webgpu .venv\Scripts\python run_benchmark.py --mode latency --filter resnet50-v2 --config webgpu --trials 1
+```
 
----
+## Repository layout
 
-**Happy benchmarking!** 🚀
+```
+src/            browser side: main.js (UI + window.__bench), bench.js (experiment core),
+                ort-setup.js, feeds.js, instrument.js, ortlog.js, profile.js,
+                responsiveness.js, llm.js, load.js, timing.js
+benchkit/       Python side: Chrome launching, env capture, NVML telemetry, correctness, results
+analysis/       offline statistics per study group
+run_benchmark.py  one mode, many (trial, model, backend) experiments
+run_study.py      every mode + analysis
+public/models/  models.json registry (+ local .onnx files)
+public/test/    cpu_node_probe.onnx: negative test for strict WebGPU mode
+public/patch/   int64 → int32 input patch (*_int32.onnx); input-dim pinning for WebGL (*_b1.onnx)
+```

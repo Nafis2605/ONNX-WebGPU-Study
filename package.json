@@ -8,7 +8,8 @@
     "build": "vite build",
     "preview": "vite preview --host",
     "prepare-wasm": "node scripts/copy-ort-wasm.js",
-    "postinstall": "npm run prepare-wasm"
+    "postinstall": "npm run prepare-wasm",
+    "bench:serve": "vite build && vite preview"
   },
   "dependencies": {
     "onnxruntime-web": "^1.24.0-dev.20251116-b39e144322"

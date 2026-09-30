@@ -153,7 +153,7 @@ def compute_same_pads(Hin, Win, kH, kW, strides, dilations, auto_pad):
 
 def count_conv_flops(input_shape, weight_shape, attrs):
     """
-    FLOPs for Conv as MACs (1 MAC = 1 FLOP here, per your choice).
+    Multiply-accumulates (MACs) for Conv. FLOPs = 2 x MACs.
     Correctly handles grouped/depthwise conv via 'group'.
     """
     # Expect NCHW input and OIHW weights
@@ -197,7 +197,7 @@ def count_conv_flops(input_shape, weight_shape, attrs):
 
 def count_matmul_flops(a_shape, b_shape):
     """
-    FLOPs for MatMul as MACs (1 MAC = 1 FLOP).
+    Multiply-accumulates (MACs) for MatMul. FLOPs = 2 x MACs.
     Supports:
       - 2D: [M,K] x [K,N] -> [M,N]
       - Batched: [..., M, K] x [..., K, N] -> [..., M, N]
@@ -239,72 +239,85 @@ def count_matmul_flops(a_shape, b_shape):
     return int(batch * M * K_a * N)
 
 
-def main():
-    rows = [["Model", "MFLOPs"]]
+def count_gemm_macs(a_shape, b_shape, attrs):
+    """MACs for Gemm: Y = op(A) x op(B), op = transpose when transA / transB is set."""
+    a = normalize_shape(a_shape)
+    b = normalize_shape(b_shape)
+    if a is None or b is None or len(a) != 2 or len(b) != 2:
+        return 0
+    if attrs.get("transA", 0):
+        a = a[::-1]
+    if attrs.get("transB", 0):
+        b = b[::-1]
+    return count_matmul_flops(a, b)
 
-    for fname in sorted(os.listdir(MODEL_DIR)):
-        if not fname.endswith(".onnx"):
+
+def fix_input_dims(model, input_dims):
+    """Pin symbolic graph-input dims to concrete values (e.g. from models.json) before shape inference."""
+    for inp in model.graph.input:
+        dims = (input_dims or {}).get(inp.name)
+        if not dims:
             continue
+        for d, v in zip(inp.type.tensor_type.shape.dim, dims):
+            if not d.HasField("dim_value"):
+                d.dim_value = int(v)
+    return model
 
+
+def count_model_macs(model, input_dims=None):
+    """
+    Multiply-accumulates of Conv, MatMul and Gemm nodes in the main graph.
+
+    Returns {"macs", "counted_nodes", "skipped_nodes"}. A node is skipped (not guessed) when its
+    input shape can't be inferred or its weight isn't a graph initializer; report both counts so
+    coverage is visible. Other ops (elementwise, normalization, attention softmax, ...) aren't
+    counted, and nothing inside If/Loop subgraphs is.
+    """
+    model = fix_input_dims(model, input_dims)
+    shape_dict = infer_shapes(model)
+    initializer = {i.name: i for i in model.graph.initializer}
+    macs, counted, skipped = 0, 0, 0
+    for node in model.graph.node:
+        op = node.op_type
+        if op == "Conv":
+            x_shape = shape_dict.get(node.input[0]) if node.input else None
+            W = initializer.get(node.input[1]) if len(node.input) > 1 else None
+            if x_shape is None or W is None:
+                skipped += 1
+                continue
+            macs += count_conv_flops(normalize_shape(x_shape), [int(d) for d in W.dims], extract_attrs(node))
+            counted += 1
+        elif op in ("Gemm", "MatMul"):
+            a_shape = shape_dict.get(node.input[0]) if node.input else None
+            b_shape = shape_dict.get(node.input[1]) if len(node.input) > 1 else None
+            if a_shape is None or b_shape is None:
+                skipped += 1
+                continue
+            n = count_gemm_macs(a_shape, b_shape, extract_attrs(node)) if op == "Gemm" else count_matmul_flops(a_shape, b_shape)
+            if n == 0:
+                skipped += 1
+                continue
+            macs += n
+            counted += 1
+    return {"macs": macs, "counted_nodes": counted, "skipped_nodes": skipped}
+
+
+def main():
+    import json
+    registry = json.load(open(os.path.join(MODEL_DIR, "models.json")))["models"]
+    rows = [["model", "file", "MMACs", "MFLOPs_2x_MACs", "counted_nodes", "skipped_nodes"]]
+    for m in registry:
+        fname = m["path"].split("/")[-1]
         path = os.path.join(MODEL_DIR, fname)
         print(f"Processing {fname}...")
-
-        try:
-            model = onnx.load(path)
-            onnx.checker.check_model(model)
-
-            shape_dict = infer_shapes(model)
-            initializer = {i.name: i for i in model.graph.initializer}
-
-            total_flops = 0
-
-            for node in model.graph.node:
-                op = node.op_type
-
-                if op == "Conv":
-                    if len(node.input) < 2:
-                        continue
-
-                    x_name = node.input[0]
-                    w_name = node.input[1]
-
-                    x_shape = shape_dict.get(x_name)
-                    if x_shape is None:
-                        continue
-                    x_shape = normalize_shape(x_shape)
-
-                    W = initializer.get(w_name)
-                    if W is None:
-                        # weight might not be an initializer; skip
-                        continue
-                    w_shape = [int(d) for d in W.dims]
-
-                    attrs = extract_attrs(node)
-                    total_flops += count_conv_flops(x_shape, w_shape, attrs)
-
-                elif op in ("Gemm", "MatMul"):
-                    if len(node.input) < 2:
-                        continue
-                    a_name = node.input[0]
-                    b_name = node.input[1]
-                    a_shape = shape_dict.get(a_name)
-                    b_shape = shape_dict.get(b_name)
-                    if a_shape is None or b_shape is None:
-                        continue
-                    node_flops = count_matmul_flops(a_shape, b_shape)
-                    total_flops += node_flops
-
-            rows.append([fname, f"{total_flops / 1e6:.2f}"])
-
-        except Exception as e:
-            print(f"  Error: {e}")
-            rows.append([fname, "Error"])
+        model = onnx.load(path)
+        r = count_model_macs(model, {i["name"]: i["dims"] for i in m["inputs"]})
+        rows.append([m["name"], fname, f"{r['macs'] / 1e6:.2f}", f"{2 * r['macs'] / 1e6:.2f}",
+                     r["counted_nodes"], r["skipped_nodes"]])
 
     with open(OUTPUT_CSV, "w", newline="") as f:
-        writer = csv.writer(f)
-        writer.writerows(rows)
-
-    print(f"\nDone! Results saved to {OUTPUT_CSV}")
+        csv.writer(f).writerows(rows)
+    print(f"Done! Results saved to {OUTPUT_CSV}")
 
 
 if __name__ == "__main__":

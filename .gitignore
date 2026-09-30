@@ -141,3 +141,15 @@ dist
 # Vite logs files
 vite.config.js.timestamp-*
 vite.config.ts.timestamp-*
+
+# Python
+.venv/
+__pycache__/
+
+# Benchmark outputs
+benchmark_results/
+
+# AI-generated docs / study report (kept local, not pushed)
+CLAUDE.md
+study_report/*.md
+dist-diag/
